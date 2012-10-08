@@ -113,7 +113,7 @@
       if [ "${title}" != "" ]; then
         echo "[${date}][${label}] [${title}]" >> "${log_file}"
       fi
-      cat /dev/stdin | tee -a "${log_file}"
+      cat ${STDIN} | tee -a "${log_file}"
       echo "----------------------------------------------------------------------------------------------------" >> "${log_file}"
     fi
   }
@@ -177,6 +177,118 @@
   
   
   ### ====================================================================================================
-  ### [Extend Functions]
+  ### [Git Functions]
+  ### ====================================================================================================
+  
+  function backup_logs {
+    file="${1:-"git-log_all"}"
+    
+    [ ! -d ../git_logs/ ] && mkdir ../git_logs/
+    
+    (
+    git log --all --oneline --graph
+    echo "--------------------------------------------------"
+    git show-branch
+    ) > "../git_logs/${file}"
+  }
+  
+  ### ----------------------------------------------------------------------------------------------------
+  
+  function git_log {
+    echo "[git log]"
+    echo "--------------------------------------------------"
+    git log --oneline | head
+    echo "--------------------------------------------------"
+  }
+  
+  function git_st {
+    echo "[git status]"
+    echo "--------------------------------------------------"
+    git status | ${grep} -Ev  '^(nothing to commit.*|# ?([ \t]*|On branch.*|Your branch .* have diverged,|and have [0-9]+ and [0-9]+ different commit(s|\(s\))? each, respectively\.))$'
+    echo "--------------------------------------------------"
+  }
+  
+  function git_sb {
+    echo "[git show-branch] ${@}"
+    echo "--------------------------------------------------"
+    git show-branch ${@}
+    echo "--------------------------------------------------"
+  }
+  
+  function git_current_branch {
+    git branch --no-color | ${grep} '^\*' | awk '{print $2}'
+  }
+  
+  ### --------------------------------------------------
+  
+  function svn_st {
+    echo "[svn status]"
+    echo "--------------------------------------------------"
+    svn status ${@} | ${grep} -v '^\.git$'
+    echo "--------------------------------------------------"
+  }
+  
+  function svn_versions {
+    cur=`svn_get_current_revision`
+    top=`svn_get_top_revision`
+    
+    echo "[SVN Version]"
+    echo "--------------------------------------------------"
+    echo -n "Current: "
+    [ "${cur}" == "${top}" ] \
+      && echo "${cur}" \
+      || echo "${cur}" | awk '{print $1 "\t(next = " ($1+1) ")"}'
+    echo "Top:     ${top}"
+    echo "--------------------------------------------------"
+  }
+  
+  ### --------------------------------------------------
+  
+  function svn_get_current_revision {
+    svn info | ${grep} -E -m 1 '(修訂版|Revision): ' | awk '{print $2}'
+  }
+  
+  function svn_get_top_revision {
+    svn status -u | ${grep} 'Status against revision' | sed 's/^.*: *//g'
+  }
+  
+  ### ----------------------------------------------------------------------------------------------------
+  
+  ### 1 = Have changes
+  ### 0 = ok for update / rebase
+  
+  function svn_has_changes {
+    svn status | ${grep} -qvE '^(.*\.git)*$' && echo 1 || echo 0
+  }
+  
+  function git_has_changes {
+    git status | ${grep} -qEv  '^(nothing to commit.*|# ?([ \t]*|On branch.*|Your branch .* have diverged,|and have [0-9]+ and [0-9]+ different commit(s|\(s\))? each, respectively\.))$' && echo 1 || echo 0
+  }
+  
+  ### ----------------------------------------------------------------------------------------------------
+  
+  function check_branch {
+    branch="${1}"
+    branch="${branch//^*}"
+    branch="${branch//\~*}"
+    show_warn="${2:-1}"
+    
+    if [ "${branch}" == "" ]; then
+      echo "Missing branch!" > /dev/stderr
+      echo "0"
+      exit
+    fi
+    
+    git branch --no-color | ${grep} -q "^[\* ] ${branch}"'$' && exist="1" || exist="0"
+    
+    if [ "${exist}" == "0" ]; then
+      [ "${show_warn}" == "1" ]  && echo "Branch '${branch}' not exist!" > /dev/stderr
+      echo "0"
+      exit
+    fi
+    
+    echo "1"
+  }
+  
   ### ====================================================================================================
   
