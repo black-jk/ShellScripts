@@ -224,7 +224,7 @@
   function svn_st {
     echo "[svn status]"
     echo "--------------------------------------------------"
-    svn status ${@} | ${grep} -v '^\.git$'
+    svn status ${@} | ${grep} -vE '^\.git$|^[ \t]*$' | ${grep} -B 100000 'Status against revision'
     echo "--------------------------------------------------"
   }
   
@@ -258,7 +258,7 @@
   ### 0 = ok for update / rebase
   
   function svn_has_changes {
-    svn status | ${grep} -qvE '^(.*\.git)*$' && echo 1 || echo 0
+    svn status | ${grep} -B 100000 'Status against revision' | ${grep} -qvE '^(.*\.git)*$' && echo 1 || echo 0
   }
   
   function git_has_changes {

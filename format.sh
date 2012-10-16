@@ -17,7 +17,7 @@
         ${grep} -Ev '^\-|\/dev\/null' "${file}" | ${grep} -E '^\+\+\+|\( | \)|if\(|\){|(for|each|while)\(|}(else|catch)|else{'
       done
     else
-      ${grep} -Ev '^\-|\/dev\/null' ${stdin} | ${grep} -E '^\+\+\+|\( | \)|if\(|\){|(for|each|while)\(|}(else|catch)|else{'
+      ${grep} -Ev '^\-|\/dev\/null' ${STDIN} | ${grep} -E '^\+\+\+|\( | \)|if\(|\){|(for|each|while)\(|}(else|catch)|else{'
     fi
   }
   
