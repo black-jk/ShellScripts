@@ -52,3 +52,19 @@
   
   ### ----------------------------------------------------------------------------------------------------
   
+  options1="quit option1 option2 option3 option4 option5 option6 option7 option8 option9 option10 option11 option12"
+  
+  select opt in ${options1}; do
+    if [ "${opt}" == "quit" ]; then
+      echo "EXIT"
+      exit
+    fi
+    
+    echo "Your choice: ${opt}"
+    break
+  done
+  
+  echo 'END'
+  echo
+  
+  ### ----------------------------------------------------------------------------------------------------
