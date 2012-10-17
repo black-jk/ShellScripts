@@ -43,6 +43,7 @@
         s/\( +/\(/g;
         s/ +\)/\)/g;
         ' "${file}"
+      unix2dos "${file}"
     done
     echo "[Done]"
     echo

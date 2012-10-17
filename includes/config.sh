@@ -4,6 +4,10 @@
   ### [Path]
   ### ====================================================================================================
   
+  PATH="${PATH}:/c/cygwin/bin"
+  
+  
+  
   ### http://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html
   
   src_root="${PWD}/"
@@ -32,9 +36,9 @@
   ### [Alias]
   ### ====================================================================================================
   
-  STDIN="/dev/stdin"
-  STDOUT="/dev/stdout"
-  STDERR="/dev/stderr"
+  #STDIN="/dev/stdin"
+  #STDOUT="/dev/stdout"
+  #STDERR="/dev/stderr"
   
   joe="joe"
   grep="grep"

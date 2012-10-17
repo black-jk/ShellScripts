@@ -155,7 +155,7 @@
       
       ### --------------------------------------------------
       
-      svn_log_msg="[svn:${revision}] svn update (v${revision})"
+      svn_log_msg="[svn] update -r ${revision}"
       
       act=""
       while [ "${act-""}" == "" ]
