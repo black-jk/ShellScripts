@@ -332,7 +332,7 @@
         [ "`svn_has_changes`" != "0" ] && echo -e "\n\e[1;31m`svn_st`\e[0m"
         [ "`git_has_changes`" != "0" ] && echo -e "\n\e[1;31m`git_st`\e[0m"
         
-        cmd="git checkout \"${branch}\" && git rebase \"${target}\""
+        cmd="git rebase \"${target}\" \"${branch}\""
         
         if [ "${i:-""}" == "1" ]; then
           read -n 1 -p "${cmd} ? (Y/n): " action
@@ -347,8 +347,7 @@
         if [ "${action:-"y"}" == "y" -o "${action}" == "Y" ]; then
           
           log "${cmd}"
-          git checkout "${branch}" && \
-          git rebase "${target}" && \
+          git rebase "${target}" "${branch}" && \
           echo | log
           
           log "===================================================================================================="
