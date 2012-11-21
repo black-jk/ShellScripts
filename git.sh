@@ -243,7 +243,7 @@
       echo -e "# Format: branche[:master]\n" > "${branches_tmp}"
       
       git checkout master && git branch --no-color | ${grep} -v '\*' | awk '{print $1}' >> "${branches_tmp}"
-      joe "${branches_tmp}"
+      [ ! "${rebase_all_branch_without_ask}" ] && joe "${branches_tmp}"
       
       ${grep} -vE '^(#.*|[ \t]*)$' "${branches_tmp}" | sed 's/ //g' > "${branches_tmp}.tmp"
       mv "${branches_tmp}.tmp" "${branches_tmp}"
@@ -468,15 +468,20 @@
       
       ### ------------------------------
       
-      action=""
+      rebase_all_branch_without_ask=""
+      
+      [ "${k:-""}" != "1" ] && action="" || action="Y"
       while [ "${action-""}" == "" ]
       do
         echo
         cmd="${0} git-rebase -all"
-        read -n 1 -p "${cmd} ? (Y/n): " action
+        read -n 1 -p "${cmd} ? (Y/n/A): " action
         echo
         
         if [ "${action:-"y"}" == "y" -o "${action}" == "Y" ]; then
+          break
+        elif [ "${action}" == "A" ]; then
+          rebase_all_branch_without_ask="1"
           break
         elif [ "${action}" == "n" -o "${action}" == "N" ]; then
           echo "Canceled!"
