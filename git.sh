@@ -390,6 +390,38 @@
     echo
   }
   
+  ### ----------------------------------------------------------------------------------------------------
+  
+  ARCHIVE_REMOTE_NAME="archive"
+  
+  function _git_archive {
+    [ "${ARCHIVE_REMOTE_NAME}" == "" ] && echo -e "\n\e[1;31mSet \$ARCHIVE_REMOTE_NAME first!\n\e[0m" && exit 1
+    git remote | ${grep} -q "^${ARCHIVE_REMOTE_NAME}\$" || { echo -e "\n\e[1;31mRemote ${ARCHIVE_REMOTE_NAME} not exist!\n\e[0m" && exit 1; }
+    
+    from_branch="${1}"
+    to_branch="${2}"
+    force="${3}"
+    remove="${4}"
+    
+    [ "${from_branch}" == "" ] && echo -e "\n\e[1;31mMissing \$from_branch!\n\e[0m" && exit 1
+    [ "${to_branch}" == "" ]   && echo -e "\n\e[1;31mMissing \$to_branch!\n\e[0m" && exit 1
+    [ "`check_branch "${from_branch}"`" == "0" ] && echo -e "\n\e[1;31Branch ${from_branch} not exist!\n\e[0m" && exit 1
+    
+    push_option=""
+    [ "${force}" == "1" ] && push_option="${push_option} -f"
+    
+    ### 1. push to archive
+    git push archive ${push_option} "${from_branch}:${to_branch}" || exit 1
+    
+    ### 2. remove local branch
+    if [ "${remove}" == "1" ]; then
+      if [ "`git_current_branch`" == "${from_branch}" ]; then
+        git checkout master
+      fi
+      git branch -D "${from_branch}"
+    fi
+  }
+  
   
   
   ### ----------------------------------------------------------------------------------------------------
@@ -403,6 +435,7 @@
     echo '  .git/scripts/git.sh sync [SVN|GIT OPTIONS]'
     echo '  .git/scripts/git.sh svn-update <mode> [--svn_branch $branch] [--revision $revision]'
     echo '  .git/scripts/git.sh git-rebase -all [-i] | <branch> <target>'
+    echo '  .git/scripts/git.sh git-archive <local-branch> [<remote-branch>] [-force] [-remove]'
     echo '  '
     echo '  [SVN OPTIONS]'
     echo '    '
@@ -426,6 +459,16 @@
     echo '      -i              Interactive'
     echo '      '
     echo '      -k              Keep branch after rebase (Or auto switch to master)'
+    echo '      '
+    echo '    git-archive | git-ar:'
+    echo '      '
+    echo '      <local-branch>  The local branch you want to archive'
+    echo '      '
+    echo '      <remote-branch> The remote branch name (default = <local-branch>)'
+    echo '      '
+    echo '      -force          Use `git push -f` for archive'
+    echo '      '
+    echo '      -remove         Remove <local-branch> after archived'
     echo '      '
     echo
   }
@@ -505,6 +548,16 @@
     
     "git-rb" | "git-rebase")
       _git_rebase
+    ;;
+    
+    ### --------------------------------------------------
+    
+    "git-ar" | "git-archive")
+      [ "`git_has_changes`" != "0" ] && echo -e "\n\e[1;31mCommit git before ${action}!\n\e[0m" && exit 1
+      
+      from_branch="${params[0]}"
+      to_branch="${params[1]:-$from_branch}"
+      _git_archive "${from_branch}" "${to_branch}" "${force}" "${remove}"
     ;;
     
     ### --------------------------------------------------
