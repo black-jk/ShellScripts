@@ -818,6 +818,19 @@
   
   
   ### ----------------------------------------------------------------------------------------------------
+  ### [NinjaEditor Actions]
+  ### ----------------------------------------------------------------------------------------------------
+  
+  function _git_backup {
+    echo -e "\n[git push archive master -f]"
+    git push archive master -f
+    echo -e "\n[git push backup --all --prune -f]"
+    git push backup --all --prune -f
+  }
+  
+  
+  
+  ### ----------------------------------------------------------------------------------------------------
   ### [Document]
   ### ----------------------------------------------------------------------------------------------------
   
@@ -831,6 +844,7 @@
     echo '  .git/scripts/git.sh git-update <branch>'
     echo '  .git/scripts/git.sh git-sequence-rebase <branch1> <branch2> <branch3> ...'
     echo '  .git/scripts/git.sh git-archive <local-branch> [<remote-branch>] [-force] [-remove]'
+    echo '  .git/scripts/git.sh git-backup'
     echo '  '
     echo '  [SVN OPTIONS]'
     echo '    '
@@ -882,6 +896,8 @@
     echo '    git-prune | git-pru | pru:'
     echo '      '
     echo '                      List for empty branches'
+    echo '      '
+    echo '    git-backup | git-bak:'
     echo '      '
     echo
   }
@@ -1023,6 +1039,12 @@
     
     "pru" | "git-pru" | "git-prune")
       _git_prune "${params[0]}"
+    ;;
+    
+    ### --------------------------------------------------
+    
+    "git-bak" | "git-backup")
+      _git_backup
     ;;
     
     ### --------------------------------------------------
