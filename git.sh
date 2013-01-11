@@ -466,9 +466,9 @@
     echo '      '
     echo '      <remote-branch> The remote branch name (default = <local-branch>)'
     echo '      '
-    echo '      -force          Use `git push -f` for archive'
+    echo '      -f | -force     Use `git push -f` for archive'
     echo '      '
-    echo '      -remove         Remove <local-branch> after archived'
+    echo '      -r | -remove    Remove <local-branch> after archived'
     echo '      '
     echo
   }
@@ -557,7 +557,7 @@
       
       from_branch="${params[0]}"
       to_branch="${params[1]:-$from_branch}"
-      _git_archive "${from_branch}" "${to_branch}" "${force}" "${remove}"
+      _git_archive "${from_branch}" "${to_branch}" "${force:-$f}" "${remove:-$r}"
     ;;
     
     ### --------------------------------------------------
