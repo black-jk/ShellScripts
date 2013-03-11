@@ -197,6 +197,8 @@
   function git_log {
     echo "[git log]"
     echo "--------------------------------------------------"
+    [ "$(git config local.git-svn)" == "true" ] || [ "$(git config local.svn)" != "true" ] && \
+    git log --pretty='format:%C(yellow)%h%Creset %C(cyan)%an%Creset %s %Cblue(%cr)%Creset' | head || \
     git log --oneline | head
     echo "--------------------------------------------------"
   }
@@ -225,6 +227,19 @@
     echo "[svn status]"
     echo "--------------------------------------------------"
     svn status ${@} | ${grep} -vE '^\.git$|^[ \t]*$' | ${grep} -B 100000 'Status against revision'
+    echo "--------------------------------------------------"
+  }
+  
+  function git_svn_st {
+    echo "[git-svn status]"
+    echo "--------------------------------------------------"
+    git svn fetch > /dev/null
+    git show-branch master git-svn
+    
+    if [ "$(git lo master -1 --pretty=%H)" != "$(git lo git-svn -1 --pretty=%H)" ]; then
+      echo -e "\n\e[1;31m  Has new revisions!\e[0m"
+    fi
+    
     echo "--------------------------------------------------"
   }
   

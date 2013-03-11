@@ -16,6 +16,8 @@
   function _status {
     echo "================================================== [Git] =================================================="
     echo
+    [ "$(git config local.git-svn)" == "true" ] && \
+    git_svn_st || \
     svn_st -u
     echo
     git_st
@@ -231,6 +233,44 @@
   
   ### ----------------------------------------------------------------------------------------------------
   
+  function _git_svn_update {
+    [ "`git_has_changes`" != "0" ] && echo -e "\n\e[1;31m`git_st`\n\nCommit git before rebase!\n\e[0m" && exit 1
+    
+    log_name="git_svn_update.log"
+    
+    svn_branch="${svn_branch:-master}"
+    [ "`check_branch "${svn_branch}"`" == "0" ] && exit 1
+    
+    git branch --no-color | ${grep} '\*' | ${grep} -q "${svn_branch}" && master=1 || master=0
+    if [ "${master}" != "1" ]; then
+      
+      act=""
+      while [ "${act-""}" == "" ]
+      do
+        echo
+        git_st
+        echo -e "\nNot at \e[1m${svn_branch}\e[0m!"
+        read -n 1 -p "Switch to ${svn_branch} ? (Y/n): " act
+        echo
+        
+        if [ "${act:-"y"}" == "y" -o "${act}" == "Y" ]; then
+          break
+        elif [ "${act}" == "n" -o "${act}" == "N" ]; then
+          echo "Canceled!"
+          exit 0
+        else
+          act=""
+        fi
+      done
+      
+      git checkout "${svn_branch}"
+    fi
+    
+    git svn rebase
+  }
+  
+  ### ----------------------------------------------------------------------------------------------------
+  
   function _git_rebase {
     [ "`git_has_changes`" != "0" ] && echo -e "\n\e[1;31m`git_st`\n\nCommit git before rebase!\n\e[0m" && exit 1
     
@@ -329,6 +369,7 @@
         git checkout master
         echo
         git_sb "${target}" "${branch}"
+        [ "$(git config local.git-svn)" != "true" ] && \
         [ "`svn_has_changes`" != "0" ] && echo -e "\n\e[1;31m`svn_st`\e[0m"
         [ "`git_has_changes`" != "0" ] && echo -e "\n\e[1;31m`git_st`\e[0m"
         
@@ -482,6 +523,7 @@
   case "${action}" in
     
     "st" | "status")
+      [ "${l-:""}" ] && clear
       _status
     ;;
     
@@ -492,6 +534,8 @@
       while [ "${action-""}" == "" ]
       do
         echo
+        [ "$(git config local.git-svn)" == "true" ] && \
+        cmd="git svn rebase" || \
         cmd="${0} svn-update up"
         read -n 1 -p "${cmd} ? (Y/n): " action
         echo
@@ -506,8 +550,11 @@
         fi
       done
       
+      [ "$(git config local.git-svn)" == "true" ] && \
+      _git_svn_update || ( \
       params[0]="up"
       _svn_update
+      )
       
       ### ------------------------------
       
