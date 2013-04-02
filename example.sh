@@ -10,6 +10,13 @@
   read_params=("option1" "option2" "option3")
   source "${config_path}"
   
+  
+  #quit "DONE ..." "${QUIT_DONE}"
+  #quit "ERROR ..." #"${QUIT_ERROR}"
+  #quit "CANCEL ..." "${QUIT_CANCEL}"
+  #quit "UNKNOW ..." "XXX"
+  
+  
   echo "--------------------------------------------------"
   
   echo "option1: '${option1}'"
