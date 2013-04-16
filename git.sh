@@ -1089,6 +1089,8 @@
       _push_ninja composer        NinjaComposer.swf        admin/public/composer
       _push_ninja thumbnail       NinjaApi_thumbnail.swf   admin/public/composer
       _push_ninja player_composer NinjaPlayerComposer.swf  admin/public/composer
+      _push_ninja manager         ComposeManager.swf       admin/public/composer
+      _push_ninja operator        NinjaOperator.swf        admin/public/composer
       echo
     ;;
     
