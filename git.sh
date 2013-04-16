@@ -828,6 +828,34 @@
     git push backup --all --prune -f
   }
   
+  ### ----------------------------------------------------------------------------------------------------
+  
+  function _push_ninja {
+    title="${1}"
+    file="${2}"
+    dir="${3}"
+    
+    if [ "${all}" == "1" ] || [ "`yes_or_no "push ${title}?" && echo 1`" == "1" ]; then
+      if [ ! "${file}" ]; then
+        echo "Missing file"
+        return
+      fi
+      if [ ! "${dir}" ]; then
+        echo "Missing dir"
+        return
+      fi
+      
+      swf_file="./Ninja/bin-release/${file}"
+      if [ ! -e "${swf_file}" ]; then
+        echo "Missing file: '${swf_file}'"
+        return
+      fi
+      
+      ### scp -P1222 ./Ninja/bin-release/NinjaApi_thumbnail.swf blackjk@ap4:/home/blackjk/svn/ninja/trunk/admin/public/composer/NinjaApi_thumbnail.swf
+      scp -P1222 "${swf_file}" "blackjk@ap4:svn/ninja/trunk/${dir}/${file}"
+    fi
+  }
+  
   
   
   ### ----------------------------------------------------------------------------------------------------
@@ -899,6 +927,11 @@
     echo '      '
     echo '    git-backup | git-bak:'
     echo '      '
+    echo '  [NINJA OPTIONS]'
+    echo '    '
+    echo '    push:             Upload flash files'
+    echo '      '
+    echo '      -all            Upload all flash files without ask'
     echo
   }
   
@@ -1045,6 +1078,18 @@
     
     "git-bak" | "git-backup")
       _git_backup
+    ;;
+    
+    ### --------------------------------------------------
+    
+    "push")
+      #_push_ninja
+      _push_ninja editor          Ninja.swf                www/public/editor
+      _push_ninja player          NinjaPlayer.swf          www/public/player
+      _push_ninja composer        NinjaComposer.swf        admin/public/composer
+      _push_ninja thumbnail       NinjaApi_thumbnail.swf   admin/public/composer
+      _push_ninja player_composer NinjaPlayerComposer.swf  admin/public/composer
+      echo
     ;;
     
     ### --------------------------------------------------
