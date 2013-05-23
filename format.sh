@@ -7,6 +7,7 @@
   ### ====================================================================================================
   
   function _check {
+    pattern='^\+\+\+|\( | \)|if\(|\){|(for|each|while)\(|}(else|catch)|else{'
     if [ "${#params[@]}" -ge "1" ]; then
       for arg in ${params[@]// /%space%}
       do
@@ -14,10 +15,10 @@
         [ -d "${file}" ] && continue;
         
         echo "[${file}]"
-        ${grep} -Ev '^\-|\/dev\/null' "${file}" | ${grep} -E '^\+\+\+|\( | \)|if\(|\){|(for|each|while)\(|}(else|catch)|else{'
+        ${grep} -Ev '^\-|\/dev\/null' "${file}" | ${grep} -E "${pattern}"
       done
     else
-      ${grep} -Ev '^\-|\/dev\/null' ${STDIN} | ${grep} -E '^\+\+\+|\( | \)|if\(|\){|(for|each|while)\(|}(else|catch)|else{'
+      ${grep} -Ev '^\-|\/dev\/null' ${STDIN} | ${grep} -E "${pattern}"
     fi
   }
   
@@ -32,7 +33,15 @@
       echo "[Fixed] ${file}"
       [ -d "${file}" ] && continue;
       
-      sed -ri 's/if\( ?/if \(/g;   s/ ?\)\{/) {/g;   s/(for|each|while|switch)\( ?/\1 \(/g;   s/\}(else|catch)/\} \1/g; s/else\{/else {/g;       s/\( +/\(/g; s/ +\)/\)/g;' "${file}"
+      sed -ri '
+        s/if\( ?/if \(/g;
+        s/ ?\)\{/) {/g;
+        s/(for|each|while|switch)\( ?/\1 \(/g;
+        s/\}(else|catch)/\} \1/g;
+        s/else\{/else {/g;
+        s/\( +/\(/g;
+        s/ +\)/\)/g;
+        ' "${file}"
     done
     echo "[Done]"
     echo
