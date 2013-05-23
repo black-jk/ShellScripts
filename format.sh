@@ -7,7 +7,7 @@
   ### ====================================================================================================
   
   function _check {
-    pattern='^\+\+\+|\( | \)|if\(|\){|(for|each|while)\(|}(else|catch)|else{'
+    pattern='^\+\+\+|\( | \)|if\(|\){|(for|each|while)\(|}(else|catch)|catch\(|else{'
     if [ "${#params[@]}" -ge "1" ]; then
       for arg in ${params[@]// /%space%}
       do
@@ -38,6 +38,7 @@
         s/ ?\)\{/) {/g;
         s/(for|each|while|switch)\( ?/\1 \(/g;
         s/\}(else|catch)/\} \1/g;
+        s/catch\(/catch (/g;
         s/else\{/else {/g;
         s/\( +/\(/g;
         s/ +\)/\)/g;
