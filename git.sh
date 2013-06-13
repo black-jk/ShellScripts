@@ -283,6 +283,7 @@
       echo -e "# Format: branche[:master]\n" > "${branches_tmp}"
       
       git checkout master && git branch --no-color | ${grep} -v '\*' | awk '{print $1}' >> "${branches_tmp}"
+      [ "${k:-""}" != "" ] && echo "${current_branch}"  >> "${branches_tmp}"
       [ ! "${rebase_all_branch_without_ask}" ] && joe "${branches_tmp}"
       
       ${grep} -vE '^(#.*|[ \t]*)$' "${branches_tmp}" | sed 's/ //g' > "${branches_tmp}.tmp"
@@ -519,6 +520,12 @@
   ### ====================================================================================================
   ### [Main]
   ### ====================================================================================================
+  
+  if [ "${k:-""}" == "" ]; then
+    current_branch=""
+  else
+    current_branch="`git_current_branch`"
+  fi
   
   case "${action}" in
     
