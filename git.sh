@@ -280,11 +280,19 @@
     if [ "${ALL_BRANCHES}" ]; then
       ### make branches list
       branches_tmp="${tmp_root}/branches.tmp"
-      echo -e "# Format: branche[:master]\n" > "${branches_tmp}"
+      prev_branches_tmp="${tmp_root}/branches.tmp.prev"
+      if [ "${prev:-""}" ] && [ -e "${prev_branches_tmp}" ]; then
+        cp "${prev_branches_tmp}" "${branches_tmp}"
+      else
+        echo -e "# Format: branche[:master]\n" > "${branches_tmp}"
+        git checkout master && git branch --no-color | ${grep} -v '\*' | awk '{print $1}' >> "${branches_tmp}"
+        [ "${k:-""}" != "" ] && echo "${current_branch}"  >> "${branches_tmp}"
+      fi
       
-      git checkout master && git branch --no-color | ${grep} -v '\*' | awk '{print $1}' >> "${branches_tmp}"
-      [ "${k:-""}" != "" ] && echo "${current_branch}"  >> "${branches_tmp}"
-      [ ! "${rebase_all_branch_without_ask}" ] && joe "${branches_tmp}"
+      if [ ! "${rebase_all_branch_without_ask}" ]; then
+        ${joe} "${branches_tmp}"
+        cp "${branches_tmp}" "${prev_branches_tmp}"
+      fi
       
       ${grep} -vE '^(#.*|[ \t]*)$' "${branches_tmp}" | sed 's/ //g' > "${branches_tmp}.tmp"
       mv "${branches_tmp}.tmp" "${branches_tmp}"
@@ -501,6 +509,8 @@
     echo '      -i              Interactive'
     echo '      '
     echo '      -k              Keep branch after rebase (Or auto switch to master)'
+    echo '      '
+    echo '      -prev           User previous branches list'
     echo '      '
     echo '    git-archive | git-ar:'
     echo '      '
