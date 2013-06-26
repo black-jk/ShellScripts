@@ -291,7 +291,11 @@
       
       if [ ! "${rebase_all_branch_without_ask}" ]; then
         ${joe} "${branches_tmp}"
-        cp "${branches_tmp}" "${prev_branches_tmp}"
+        
+        [ -e "${prev_branches_tmp}.bak2" ] && cp "${prev_branches_tmp}.bak2" "${prev_branches_tmp}.bak3"
+        [ -e "${prev_branches_tmp}.bak1" ] && cp "${prev_branches_tmp}.bak1" "${prev_branches_tmp}.bak2"
+        [ -e "${prev_branches_tmp}"      ] && cp "${prev_branches_tmp}"      "${prev_branches_tmp}.bak1"
+        cp "${branches_tmp}"           "${prev_branches_tmp}"
       fi
       
       ${grep} -vE '^(#.*|[ \t]*)$' "${branches_tmp}" | sed 's/ //g' > "${branches_tmp}.tmp"
