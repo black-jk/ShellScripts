@@ -286,7 +286,7 @@
       else
         echo -e "# Format: branche[:master]\n" > "${branches_tmp}"
         git checkout master && git branch --no-color | ${grep} -v '\*' | ${grep} -Ev '^[ \t]*(develop|release|.*\.debug)[ \t]*$' | awk '{print $1}' >> "${branches_tmp}"
-        [ "${k:-""}" != "" ] && echo "${current_branch}"  >> "${branches_tmp}"
+        [ "${keep_branch}" ] && echo -e "\n# --------------------------------------------------\n\n${current_branch}"  >> "${branches_tmp}"
       fi
       
       if [ ! "${rebase_all_branch_without_ask}" ]; then
@@ -354,6 +354,15 @@
         fi
         
         branch=`head -1 "${branches_tmp}"`
+        sed -i '1d' "${branches_tmp}"
+        
+        ### keep on last branch
+        if [ "${keep_branch}" ]; then
+          if [ "`awk 'END {print NR}' "${branches_tmp}"`" == "0" ]; then
+            git checkout "${branch}"
+            break
+          fi
+        fi
         
         ### specified target branch
         echo "${branch}" | ${grep} -Eq ':' && bool="1" || bool=""
@@ -363,8 +372,6 @@
         else
           target="${default_target_branch}"
         fi
-        
-        sed -i '1d' "${branches_tmp}"
         
         ### debug branch
         if [ "${target}" == "${default_target_branch}" ]; then
@@ -466,7 +473,7 @@
     
     echo -e "\n====================================================================================================\n"
     
-    [ "${k:-""}" != "1" ] && git checkout master
+    [ ! "${keep_branch}" ] && git checkout master
     
     if [ "${ALL_BRANCHES}" ]; then
       echo
@@ -569,10 +576,11 @@
   ### [Main]
   ### ====================================================================================================
   
-  if [ "${k:-""}" == "" ]; then
-    current_branch=""
-  else
+  keep_branch="${k:-""}"
+  if [ "${keep_branch}" ]; then
     current_branch="`git_current_branch`"
+  else
+    current_branch=""
   fi
   
   case "${action}" in
@@ -615,7 +623,7 @@
       
       rebase_all_branch_without_ask=""
       
-      [ "${k:-""}" != "1" ] && action="" || action="Y"
+      [ ! "${keep_branch}" ] && action="" || action="Y"
       while [ "${action-""}" == "" ]
       do
         echo
