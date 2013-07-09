@@ -285,7 +285,7 @@
         cp "${prev_branches_tmp}" "${branches_tmp}"
       else
         echo -e "# Format: branche[:master]\n" > "${branches_tmp}"
-        git checkout master && git branch --no-color | ${grep} -v '\*' | awk '{print $1}' >> "${branches_tmp}"
+        git checkout master && git branch --no-color | ${grep} -v '\*' | ${grep} -Ev '^[ \t]*(develop|release)[ \t]*$' | awk '{print $1}' >> "${branches_tmp}"
         [ "${k:-""}" != "" ] && echo "${current_branch}"  >> "${branches_tmp}"
       fi
       
@@ -299,7 +299,21 @@
       fi
       
       ${grep} -vE '^(#.*|[ \t]*)$' "${branches_tmp}" | sed 's/ //g' > "${branches_tmp}.tmp"
-      mv "${branches_tmp}.tmp" "${branches_tmp}"
+      rm "${branches_tmp}"
+      
+      if [ "`check_branch "develop"`" == "1" ]; then
+        echo "develop:master" >> "${branches_tmp}"
+        
+        if [ "`check_branch "release"`" == "1" ]; then
+          echo "release:develop" >> "${branches_tmp}"
+        fi
+      else
+        if [ "`check_branch "release"`" == "1" ]; then
+          echo "release:master" >> "${branches_tmp}"
+        fi
+      fi
+      
+      cat "${branches_tmp}.tmp" >> "${branches_tmp}"
       
       index="0"
       branches_count="`awk 'END {print NR}' "${branches_tmp}"`"
@@ -326,6 +340,13 @@
       ### ----------------------------------------------------------------------------------------------------
       
       ### [Get branch]
+      
+      if [ "`check_branch "develop"`" == "1" ]; then
+        default_target_branch="develop"
+      else
+        default_target_branch="master"
+      fi
+      
       if [ "${ALL_BRANCHES}" ]; then
         
         if [ "`awk 'END {print NR}' "${branches_tmp}"`" == "0" ]; then
@@ -333,12 +354,14 @@
         fi
         
         branch=`head -1 "${branches_tmp}"`
-        target="master"
         
+        ### specified target branch
         echo "${branch}" | ${grep} -Eq ':' && bool="1" || bool=""
         if [ "${bool}" == "1" ]; then
           target="${branch##*:}"
           branch="${branch%%:*}"
+        else
+          target="${default_target_branch}"
         fi
         
         sed -i '1d' "${branches_tmp}"
@@ -347,7 +370,7 @@
         
       else
         branch="${params[0]:-""}"
-        target="${params[1]:-"master"}"
+        target="${params[1]:-"$default_target_branch"}"
       fi
       
       ### --------------------------------------------------
