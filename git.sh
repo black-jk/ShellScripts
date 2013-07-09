@@ -285,7 +285,7 @@
         cp "${prev_branches_tmp}" "${branches_tmp}"
       else
         echo -e "# Format: branche[:master]\n" > "${branches_tmp}"
-        git checkout master && git branch --no-color | ${grep} -v '\*' | ${grep} -Ev '^[ \t]*(develop|release)[ \t]*$' | awk '{print $1}' >> "${branches_tmp}"
+        git checkout master && git branch --no-color | ${grep} -v '\*' | ${grep} -Ev '^[ \t]*(develop|release|.*\.debug)[ \t]*$' | awk '{print $1}' >> "${branches_tmp}"
         [ "${k:-""}" != "" ] && echo "${current_branch}"  >> "${branches_tmp}"
       fi
       
@@ -365,6 +365,17 @@
         fi
         
         sed -i '1d' "${branches_tmp}"
+        
+        ### debug branch
+        if [ "${target}" == "${default_target_branch}" ]; then
+          debug_branch="${branch}.debug"
+          if [ "`check_branch "${debug_branch}" "0"`" == "1" ]; then
+            sed -i 1i"${branch}:${debug_branch}" "${branches_tmp}"
+            branch="${debug_branch}"
+            #index=$(($index - 1))
+            branches_count=$(($branches_count + 1))
+          fi
+        fi
         
         echo "[branch: ${branch}] [target: ${target}]"
         
