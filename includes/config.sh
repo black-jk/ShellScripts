@@ -287,23 +287,44 @@
     branch="${1}"
     branch="${branch//^*}"
     branch="${branch//\~*}"
-    show_warn="${2:-1}"
-    
-    if [ "${branch}" == "" ]; then
-      echo "Missing branch!" > /dev/stderr
-      echo "0"
-      exit
-    fi
+    when_missing="${2:-""}"
+    [ "${branch}" == "" ] && quit "Missing branch name!" "${QUIT_ERROR}"
     
     git branch --no-color | ${grep} -q "^[\* ] ${branch}"'$' && exist="1" || exist="0"
     
-    if [ "${exist}" == "0" ]; then
-      [ "${show_warn}" == "1" ]  && echo "Branch '${branch}' not exist!" > /dev/stderr
-      echo "0"
-      exit
+    if [ "${exist}" == "1" ]; then
+      return 0
+    else
+      msg="Branch '${branch}' not exist!"
+      if [ "${when_missing}" == "quit" ]; then
+        quit "${msg}" "${QUIT_ERROR}"
+      elif [ "${when_missing}" == "warn" ]; then
+        echo -e "\e[0;31m${msg}\e[0m" > ${STDERR}
+      fi
+      return 1
     fi
+  }
+  
+  ### --------------------------------------------------
+  
+  function check_remote {
+    remote="${1}"
+    when_missing="${2:-""}"
+    [ "${remote}" == "" ] && quit echo "Missing remote name!" "${QUIT_ERROR}"
     
-    echo "1"
+    git remote | ${grep} -q "^${remote}\$" && exist="1" || exist="0"
+    
+    if [ "${exist}" == "1" ]; then
+      return 0
+    else
+      msg="Remote '${remote}' not exist!"
+      if [ "${when_missing}" == "quit" ]; then
+        quit "${msg}" "${QUIT_ERROR}"
+      elif [ "${when_missing}" == "warn" ]; then
+        echo -e "\e[0;31m${msg}\e[0m" > ${STDERR}
+      fi
+      return 1
+    fi
   }
   
   ### ====================================================================================================

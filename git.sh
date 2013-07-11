@@ -36,7 +36,7 @@
     log_name="svn_update.log"
     
     svn_branch="${svn_branch:-master}"
-    [ "`check_branch "${svn_branch}"`" == "0" ] && exit 1
+    check_branch "${svn_branch}" "quit"
     
     while [ "1" ] ###  update to top
     do
@@ -243,7 +243,7 @@
     
     ### switch to svn branch
     svn_branch="${svn_branch:-master}"
-    [ "`check_branch "${svn_branch}"`" == "0" ] && exit 1
+    check_branch "${svn_branch}" "quit"
     
     git branch --no-color | ${grep} '\*' | ${grep} -q "${svn_branch}" && master=1 || master=0
     if [ "${master}" != "1" ]; then
@@ -305,16 +305,14 @@
       ${grep} -vE '^(#.*|[ \t]*)$' "${branches_tmp}" | sed 's/ //g' > "${branches_tmp}.tmp"
       rm "${branches_tmp}"
       
-      if [ "`check_branch "develop"`" == "1" ]; then
+      if [ "`check_branch "develop" && echo 1`" ]; then
         echo "develop:master" >> "${branches_tmp}"
-        
-        if [ "`check_branch "release"`" == "1" ]; then
-          echo "release:develop" >> "${branches_tmp}"
-        fi
+        base_branch="develop"
       else
-        if [ "`check_branch "release"`" == "1" ]; then
-          echo "release:master" >> "${branches_tmp}"
-        fi
+        base_branch="master"
+      fi
+      if [ "`check_branch "release" && echo 1`" ]; then
+        echo "release:${base_branch}" >> "${branches_tmp}"
       fi
       
       cat "${branches_tmp}.tmp" >> "${branches_tmp}"
@@ -345,7 +343,7 @@
       
       ### [Get branch]
       
-      if [ "`check_branch "develop"`" == "1" ]; then
+      if [ "`check_branch "develop" && echo 1`" ]; then
         default_target_branch="develop"
       else
         default_target_branch="master"
@@ -380,7 +378,7 @@
         ### debug branch
         if [ "${target}" == "${default_target_branch}" ]; then
           debug_branch="${branch}.debug"
-          if [ "`check_branch "${debug_branch}" "0"`" == "1" ]; then
+          if [ "`check_branch "${debug_branch}" && echo 1`" ]; then
             sed -i 1i"${branch}:${debug_branch}" "${branches_tmp}"
             branch="${debug_branch}"
             #index=$(($index - 1))
@@ -399,7 +397,7 @@
       
       index=$(($index + 1))
       
-      if [ "`check_branch "${branch}"`" == "0" ] || [ "`check_branch "${target}"`" == "0" ]; then
+      if [ "`check_branch "${branch}" "warn" || echo 1`" ] || [ "`check_branch "${target}" "warn" || echo 1`" ]; then
         ### Missing branch
         if [ "${ALL_BRANCHES}" ]; then
           echo "Next ..." && sleep 3
@@ -501,7 +499,7 @@
     
     [ "${from_branch}" == "" ] && echo -e "\n\e[1;31mMissing \$from_branch!\n\e[0m" && exit 1
     [ "${to_branch}" == "" ]   && echo -e "\n\e[1;31mMissing \$to_branch!\n\e[0m" && exit 1
-    [ "`check_branch "${from_branch}"`" == "0" ] && echo -e "\n\e[1;31Branch ${from_branch} not exist!\n\e[0m" && exit 1
+    check_branch "${from_branch}" "quit"
     
     push_option=""
     [ "${force}" == "1" ] && push_option="${push_option} -f"
@@ -609,6 +607,7 @@
             cmd="git svn rebase" || \
             cmd="${0} svn-update up"
         else
+          check_remote "origin" && \
           cmd="git pull origin --rebase"
         fi
         
