@@ -16,10 +16,10 @@
   function _status {
     echo "================================================== [Git] =================================================="
     echo
-    [ "$(git config local.git-svn)" == "true" ] && \
-    git_svn_st || \
-    svn_st -u
-    echo
+    if [ "${use_svn}" ]; then
+      [ "${use_git_svn}" ] && git_svn_st || svn_st -u
+      echo
+    fi
     git_st
     echo
     git_log
@@ -30,6 +30,7 @@
   ### ----------------------------------------------------------------------------------------------------
   
   function _svn_update {
+    [ ! "${use_svn}" ] && echo -e "\n\e[1;31mSVN NOT SUPPORT!?\e[0m\n" && exit 1
     [ "`git_has_changes`" != "0" ] && echo -e "\n\e[1;31m`git_st`\n\nCommit git before rebase!\n\e[0m" && exit 1
     
     log_name="svn_update.log"
@@ -234,10 +235,13 @@
   ### ----------------------------------------------------------------------------------------------------
   
   function _git_svn_update {
+    [ ! "${use_svn}" ] && echo -e "\n\e[1;31mSVN NOT SUPPORT!?\e[0m\n" && exit 1
     [ "`git_has_changes`" != "0" ] && echo -e "\n\e[1;31m`git_st`\n\nCommit git before rebase!\n\e[0m" && exit 1
     
     log_name="git_svn_update.log"
     
+    
+    ### switch to svn branch
     svn_branch="${svn_branch:-master}"
     [ "`check_branch "${svn_branch}"`" == "0" ] && exit 1
     
@@ -420,10 +424,8 @@
                 "\n\e[1m[${index} / ${branches_count}] \e[1;32m[${target}] <- [${branch}]\e[0m\n"
         
         ### [Check svn and git status]
-        git checkout master
-        echo
         git_sb "${target}" "${branch}"
-        [ "$(git config local.git-svn)" != "true" ] && \
+        [ "${use_svn}" ] && [ ! "${use_git_svn}" ] && git checkout master && \
         [ "`svn_has_changes`" != "0" ] && echo -e "\n\e[1;31m`svn_st`\e[0m"
         [ "`git_has_changes`" != "0" ] && echo -e "\n\e[1;31m`git_st`\e[0m"
         
@@ -440,7 +442,6 @@
         echo
         
         if [ "${action:-"y"}" == "y" -o "${action}" == "Y" ]; then
-          
           log "${cmd}"
           git rebase "${target}" "${branch}" && \
           echo | log
@@ -576,6 +577,11 @@
   ### [Main]
   ### ====================================================================================================
   
+  #[ "$(git config local.svn)"     == "true" ] && use_svn="1"     || use_svn=""
+  #[ "$(git config local.git-svn)" == "true" ] && use_git_svn="1" || use_git_svn=""
+  use_svn="$(     [ "$(git config local.svn)"     == "true" ] && printf 1)"
+  use_git_svn="$( [ "$(git config local.git-svn)" == "true" ] && printf 1)"
+  
   keep_branch="${k:-""}"
   if [ "${keep_branch}" ]; then
     current_branch="`git_current_branch`"
@@ -597,9 +603,15 @@
       while [ "${action-""}" == "" ]
       do
         echo
-        [ "$(git config local.git-svn)" == "true" ] && \
-        cmd="git svn rebase" || \
-        cmd="${0} svn-update up"
+        
+        if [ "${use_svn}" ]; then
+          [ "${use_git_svn}" ] && \
+            cmd="git svn rebase" || \
+            cmd="${0} svn-update up"
+        else
+          cmd="git pull origin --rebase"
+        fi
+        
         read -n 1 -p "${cmd} ? (Y/n): " action
         echo
         
@@ -613,11 +625,16 @@
         fi
       done
       
-      [ "$(git config local.git-svn)" == "true" ] && \
-      _git_svn_update || ( \
-      params[0]="up"
-      _svn_update
-      )
+      if [ "${use_svn}" ]; then
+        [ "${use_git_svn}" ] && \
+        _git_svn_update || ( \
+          params[0]="up"
+          _svn_update
+        )
+      else
+        check_remote "origin" && \
+        git co master && git pull --rebase origin master
+      fi
       
       ### ------------------------------
       
