@@ -427,7 +427,18 @@
         [ "`svn_has_changes`" != "0" ] && echo -e "\n\e[1;31m`svn_st`\e[0m"
         [ "`git_has_changes`" != "0" ] && echo -e "\n\e[1;31m`git_st`\e[0m"
         
-        cmd="git rebase \"${target}\" \"${branch}\""
+        onto="${onto:-""}"
+        if [ "${onto}" ] && [ "${target}" == "develop" ]; then
+          if [ "`check_branch "${onto}" && echo 1`" ] || [ "`check_object "${onto}:${branch}" && echo 1`" ]; then
+            cmd="git rebase --onto \"${target}\" \"${onto}\" \"${branch}\""
+          else
+            echo -e "\e[1;31mCheck object '${onto}' fail! Skip rebase '${branch}'.\e[0m"
+            break_while=""
+            break
+          fi
+        else
+          cmd="git rebase \"${target}\" \"${branch}\""
+        fi
         
         if [ "${i:-""}" == "1" ]; then
           read -n 1 -p "${cmd} ? (Y/n): " action
@@ -441,7 +452,11 @@
         
         if [ "${action:-"y"}" == "y" -o "${action}" == "Y" ]; then
           log "${cmd}"
-          git rebase "${target}" "${branch}" && \
+          if [ "${onto}" ] && [ "${target}" == "develop" ]; then
+            git rebase --onto "${target}" "${onto}" "${branch}"
+          else
+            git rebase "${target}" "${branch}"
+          fi
           echo | log
           
           log "===================================================================================================="
@@ -555,6 +570,8 @@
     echo '      -k              Keep branch after rebase (Or auto switch to master)'
     echo '      '
     echo '      -prev           User previous branches list'
+    echo '      '
+    echo '      --onto $object  Use rebase --onto'
     echo '      '
     echo '    git-archive | git-ar:'
     echo '      '

@@ -327,5 +327,33 @@
     fi
   }
   
+  ### --------------------------------------------------
+  
+  function check_object {
+    if [ "`echo "${1}" | ${grep} -Eq ':' && echo 1 `" ]; then
+      object="${1%%:*}"
+      object_parent="${1##*:}"
+    else
+      object="${1}"
+      object_parent="--all"
+    fi
+    when_missing="${2:-""}"
+    [ "${object}" == "" ] && quit echo "Missing object name!" "${QUIT_ERROR}"
+    
+    git rev-list "${object_parent}" | ${grep} -q "^${object}" && exist="1" || exist="0"
+    
+    if [ "${exist}" == "1" ]; then
+      return 0
+    else
+      msg="Object '${object}' not exist!"
+      if [ "${when_missing}" == "quit" ]; then
+        quit "${msg}" "${QUIT_ERROR}"
+      elif [ "${when_missing}" == "warn" ]; then
+        echo -e "\e[0;31m${msg}\e[0m" > ${STDERR}
+      fi
+      return 1
+    fi
+  }
+  
   ### ====================================================================================================
   
