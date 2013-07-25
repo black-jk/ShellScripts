@@ -289,7 +289,7 @@
         cp "${prev_branches_tmp}" "${branches_tmp}"
       else
         echo -e "# Format: branche[:master]\n" > "${branches_tmp}"
-        git checkout master && git branch --no-color | ${grep} -v '\*' | ${grep} -Ev '^[ \t]*(develop|release|.*\.debug)[ \t]*$' | awk '{print $1}' >> "${branches_tmp}"
+        git checkout master && git branch --no-color | ${grep} -v '\*' | ${grep} -Ev '^[ \t]*(develop|release|.*\.(debug|demo))[ \t]*$' | awk '{print $1}' >> "${branches_tmp}"
         [ "${keep_branch}" ] && echo -e "\n# --------------------------------------------------\n\n${current_branch}"  >> "${branches_tmp}"
       fi
       
@@ -375,11 +375,25 @@
           target="${default_target_branch}"
         fi
         
+        ### demo branch
+        if [ "${target}" == "${default_target_branch}" ]; then
+          demo_branch="${branch}.demo"
+          if [ "`check_branch "${demo_branch}" && echo 1`" ]; then
+            echo "${demo_branch}:${branch}" > "${branches_tmp}.tmp"
+            cat "${branches_tmp}" >> "${branches_tmp}.tmp"
+            mv "${branches_tmp}.tmp" "${branches_tmp}"
+            #index=$(($index - 1))
+            branches_count=$(($branches_count + 1))
+          fi
+        fi
+        
         ### debug branch
         if [ "${target}" == "${default_target_branch}" ]; then
           debug_branch="${branch}.debug"
           if [ "`check_branch "${debug_branch}" && echo 1`" ]; then
-            sed -i 1i"${branch}:${debug_branch}" "${branches_tmp}"
+            echo "${branch}:${debug_branch}" > "${branches_tmp}.tmp"
+            cat "${branches_tmp}" >> "${branches_tmp}.tmp"
+            mv "${branches_tmp}.tmp" "${branches_tmp}"
             branch="${debug_branch}"
             #index=$(($index - 1))
             branches_count=$(($branches_count + 1))
