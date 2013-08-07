@@ -248,7 +248,7 @@
     git branch --no-color | ${grep} '\*' | ${grep} -q "${svn_branch}" && master=1 || master=0
     if [ "${master}" != "1" ]; then
       
-      act=""
+      act="Y" #""
       while [ "${act-""}" == "" ]
       do
         echo
@@ -412,7 +412,7 @@
           fi
         fi
         
-        echo "[branch: ${branch}] [target: ${target}]"
+        #echo "[branch: ${branch}] [target: ${target}]"
         
       else
         branch="${params[0]:-""}"
@@ -591,6 +591,8 @@
     echo '      '
     echo '      -all            Rebase all branch by list. (You can edit list before rebase)'
     echo '      '
+    echo '      -noedit         Rebase without edit the list'
+    echo '      '
     echo '      -i              Interactive'
     echo '      '
     echo '      -k              Keep branch after rebase (Or auto switch to master)'
@@ -640,7 +642,7 @@
     ### --------------------------------------------------
     
     "sync")
-      action=""
+      action="Y" #""
       while [ "${action-""}" == "" ]
       do
         echo
@@ -702,6 +704,10 @@
           action=""
         fi
       done
+      
+      if [ "${noedit:-""}" ]; then
+        rebase_all_branch_without_ask=1
+      fi
       
       all="1"
       _git_rebase
