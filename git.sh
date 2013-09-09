@@ -834,8 +834,9 @@
     title="${1}"
     file="${2}"
     dir="${3}"
+    ask="${4:-1}"
     
-    if [ "${all}" == "1" ] || [ "`yes_or_no "push ${title}?" && echo 1`" == "1" ]; then
+    if [ "${ask}" == "0" ] || [ "`yes_or_no "push ${title}?" && echo 1`" == "1" ]; then
       if [ ! "${file}" ]; then
         echo "Missing file"
         return
@@ -851,6 +852,7 @@
         return
       fi
       
+      #echo "scp -P1222 \"${swf_file}\" \"blackjk@ap4:svn/ninja/trunk/${dir}/${file}\""
       ### scp -P1222 ./Ninja/bin-release/NinjaApi_thumbnail.swf blackjk@ap4:/home/blackjk/svn/ninja/trunk/admin/public/composer/NinjaApi_thumbnail.swf
       scp -P1222 "${swf_file}" "blackjk@ap4:svn/ninja/trunk/${dir}/${file}"
     fi
@@ -872,7 +874,7 @@
     echo '  .git/scripts/git.sh git-update <branch>'
     echo '  .git/scripts/git.sh git-sequence-rebase <branch1> <branch2> <branch3> ...'
     echo '  .git/scripts/git.sh git-archive <local-branch> [<remote-branch>] [-force] [-remove]'
-    echo '  .git/scripts/git.sh git-backup'
+    echo '  .git/scripts/git.sh git-backup [-all] | ? | <specified>'
     echo '  '
     echo '  [SVN OPTIONS]'
     echo '    '
@@ -930,6 +932,10 @@
     echo '  [NINJA OPTIONS]'
     echo '    '
     echo '    push:             Upload flash files'
+    echo '      '
+    echo '      ?               Show identify of swf'
+    echo '      '
+    echo '      <specified>     Upload specified swf'
     echo '      '
     echo '      -all            Upload all flash files without ask'
     echo
@@ -1083,14 +1089,30 @@
     ### --------------------------------------------------
     
     "push")
-      #_push_ninja
-      _push_ninja editor          Ninja.swf                www/public/editor
-      _push_ninja player          NinjaPlayer.swf          www/public/player
-      _push_ninja composer        NinjaComposer.swf        admin/public/composer
-      _push_ninja thumbnail       NinjaApi_thumbnail.swf   admin/public/composer
-      _push_ninja player_composer NinjaPlayerComposer.swf  admin/public/composer
-      _push_ninja manager         ComposeManager.swf       admin/public/composer
-      _push_ninja operator        NinjaOperator.swf        admin/public/composer
+      specified=${params[0]:-""}
+      
+      if [ "${specified}" == "?" ]; then
+        i=0
+        i=$((i + 1)); echo " ${i}: Ninja.swf"
+        i=$((i + 1)); echo " ${i}: NinjaPlayer.swf"
+        i=$((i + 1)); echo " ${i}: NinjaComposer.swf"
+        i=$((i + 1)); echo " ${i}: NinjaApi_thumbnail.swf"
+        i=$((i + 1)); echo " ${i}: NinjaPlayerComposer.swf"
+        i=$((i + 1)); echo " ${i}: ComposeManager.swf"
+        i=$((i + 1)); echo " ${i}: NinjaOperator.swf"
+        i=$((i + 1)); echo " ${i}: NinjaTools.swf"
+      else
+        i=0
+        i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  editor           Ninja.swf                    www/public/editor      $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
+        i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  player           NinjaPlayer.swf              www/public/player      $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
+        i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  composer         NinjaComposer.swf            admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
+        i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  thumbnail        NinjaApi_thumbnail.swf       admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
+        i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  snapshot         NinjaPlayerComposer.swf      admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
+        i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  manager          ComposeManager.swf           admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
+        i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  operator         NinjaOperator.swf            admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
+        i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  tools            NinjaTools.swf               www/public/editor      $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
+      fi
+      
       echo
     ;;
     
