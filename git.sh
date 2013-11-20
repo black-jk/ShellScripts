@@ -852,9 +852,14 @@
         return
       fi
       
+      echo -ne "\n[ap4]\n"
       #echo "scp -P1222 \"${swf_file}\" \"blackjk@ap4:svn/ninja/trunk/${dir}/${file}\""
       ### scp -P1222 ./Ninja/bin-release/NinjaApi_thumbnail.swf blackjk@ap4:/home/blackjk/svn/ninja/trunk/admin/public/composer/NinjaApi_thumbnail.swf
       scp -P1222 "${swf_file}" "blackjk@ap4:svn/ninja/trunk/${dir}/${file}"
+      
+      echo -ne "\n[dev]\n"
+      ssh -p 51070 -o ConnectTimeout=1 -q "blackjk@dev.tintint.com" "date"
+      scp -P1222 "${swf_file}" "blackjk@dev.tintint.com:svn/ninja/trunk/${dir}/${file}"
     fi
   }
   
