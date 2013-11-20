@@ -9,7 +9,7 @@
   [ "$(git config local.svn)" == "true" ] && use_svn="1" || use_svn=""
   [ "$(git config local.git-svn)" == "true" ] && use_git_svn="1" || use_git_svn=""
   
-  if [ ! "${force:-""}" ]; then
+  if [ ! "${f:-""}" ] && [ ! "${force:-""}" ]; then
     if [ "${use_svn}" ] && [ ! "${use_git_svn}" ] && [ "`svn_has_changes`" != "0" ]; then
       quit "Commit svn changes before this!" "${QUIT_ERROR}"
       exit 1
