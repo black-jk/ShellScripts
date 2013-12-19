@@ -846,16 +846,22 @@
         return
       fi
       
-      swf_file="./Ninja/bin-release/${file}"
+      if [ "${file}" == "TinTintSlot.swf" ]; then
+        swf_dir="./SlotMachine/bin-release"
+      else
+        swf_dir="./Ninja/bin-release"
+      fi
+      swf_file="${swf_dir}/${file}"
+      
       if [ ! -e "${swf_file}" ]; then
         echo "Missing file: '${swf_file}'"
         return
       fi
       
-      echo -ne "\n[ap4]\n"
-      #echo "scp -P1222 \"${swf_file}\" \"blackjk@ap4:svn/ninja/trunk/${dir}/${file}\""
       ### scp -P1222 ./Ninja/bin-release/NinjaApi_thumbnail.swf blackjk@ap4:/home/blackjk/svn/ninja/trunk/admin/public/composer/NinjaApi_thumbnail.swf
-      scp -P1222 "${swf_file}" "blackjk@ap4:svn/ninja/trunk/${dir}/${file}"
+      #echo -ne "\n[ap4]\n"
+      #echo "scp -P1222 \"${swf_file}\" \"blackjk@ap4:svn/ninja/trunk/${dir}/${file}\""
+      #scp -P1222 "${swf_file}" "blackjk@ap4:svn/ninja/trunk/${dir}/${file}"
       
       echo -ne "\n[dev]\n"
       ssh -p 51070 -o ConnectTimeout=1 -q "blackjk@dev.tintint.com" "date"
@@ -1099,26 +1105,30 @@
         i=$((i + 1)); echo " ${i}: Ninja.swf"
         i=$((i + 1)); echo " ${i}: NinjaPlayer.swf"
         i=$((i + 1)); echo " ${i}: NinjaComposer.swf"
-        i=$((i + 1)); echo " ${i}: NinjaApi_thumbnail.swf"
         i=$((i + 1)); echo " ${i}: NinjaPlayerComposer.swf"
         i=$((i + 1)); echo " ${i}: NinjaScreenShotComposer.swf"
         i=$((i + 1)); echo " ${i}: ComposeManager.swf"
+        i=$((i + 1)); echo " ${i}: ComposeManagerV2.swf"
+        i=$((i + 1)); echo " ${i}: NinjaApi_thumbnail.swf"
         i=$((i + 1)); echo " ${i}: NinjaOperator.swf"
-        i=$((i + 1)); echo " ${i}: NinjaTools.swf"
+        i=$((i + 1)); echo " ${i}: TinTintSlot.swf"
+        #i=$((i + 1)); echo " ${i}: NinjaTools.swf"
         echo
       #fi
       
-      if [ "${specified}" != "" ]; then
+      if [ "${specified}" != "" ] || [ "${all}" == "1" ]; then
         i=0
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  editor           Ninja.swf                    www/public/editor      $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  player           NinjaPlayer.swf              www/public/player      $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  composer         NinjaComposer.swf            admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
-        i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  thumbnail        NinjaApi_thumbnail.swf       admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  snapshot         NinjaPlayerComposer.swf      admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  screenshot       NinjaScreenShotComposer.swf  admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  manager          ComposeManager.swf           admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
+        i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  manager2         ComposeManagerV2.swf         admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
+        i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  thumbnail        NinjaApi_thumbnail.swf       admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  operator         NinjaOperator.swf            admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
-        i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  tools            NinjaTools.swf               www/public/editor      $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
+        i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  slot             TinTintSlot.swf              www/public/static/event/slot  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
+        #i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  tools            NinjaTools.swf               www/public/editor      $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
       fi
       
       echo
