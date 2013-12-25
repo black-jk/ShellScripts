@@ -808,6 +808,25 @@
     echo "[SUCCESS] Update revision to ${svn_revision}"
   }
   
+  ### ----------------------------------------------------------------------------------------------------
+  
+  function _flex_release {
+    git rebase git-svn master                                                                         && \
+    git rebase master develop-flex                                                                    && \
+    git rebase develop-flex develop                                                                   && \
+    git rebase develop-flex release                                                                   && \
+    _flex_update                                                                                      && \
+    git commit --amend -C HEAD configure/flex-config.xml > NUL
+    
+    echo "--------------------------------------------------"
+    git status
+    echo "--------------------------------------------------"
+    git show-branch git-svn master develop-flex release
+    echo "--------------------------------------------------"
+    git show "configure/flex-config.xml"
+    echo "--------------------------------------------------"
+  }
+  
   
   
   ### ----------------------------------------------------------------------------------------------------
@@ -967,6 +986,8 @@
     echo '      -all            Upload all flash files without ask'
     echo '    '
     echo '    flex-update:      Update svn reversion'
+    echo '      '
+    echo '    flex-release:     Udate for release'
     echo '      '
     echo
   }
@@ -1168,6 +1189,12 @@
     
     "flex-update")
       _flex_update
+    ;;
+    
+    ### --------------------------------------------------
+    
+    "flex-release")
+      _flex_release
     ;;
     
     ### --------------------------------------------------
