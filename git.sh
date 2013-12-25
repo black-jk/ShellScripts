@@ -933,8 +933,6 @@
     echo '    '
     echo '    push:             Upload flash files'
     echo '      '
-    echo '      ?               Show identify of swf'
-    echo '      '
     echo '      <specified>     Upload specified swf'
     echo '      '
     echo '      -all            Upload all flash files without ask'
@@ -1091,7 +1089,7 @@
     "push")
       specified=${params[0]:-""}
       
-      if [ "${specified}" == "?" ]; then
+      #if [ "${specified}" == "help" ]; then
         i=0
         i=$((i + 1)); echo " ${i}: Ninja.swf"
         i=$((i + 1)); echo " ${i}: NinjaPlayer.swf"
@@ -1102,7 +1100,10 @@
         i=$((i + 1)); echo " ${i}: ComposeManager.swf"
         i=$((i + 1)); echo " ${i}: NinjaOperator.swf"
         i=$((i + 1)); echo " ${i}: NinjaTools.swf"
-      else
+        echo
+      #fi
+      
+      if [ "${specified}" != "" ]; then
         i=0
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  editor           Ninja.swf                    www/public/editor      $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  player           NinjaPlayer.swf              www/public/player      $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
