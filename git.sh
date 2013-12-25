@@ -1113,6 +1113,8 @@
         i=$((i + 1)); echo " ${i}: NinjaOperator.swf"
         i=$((i + 1)); echo " ${i}: TinTintSlot.swf"
         #i=$((i + 1)); echo " ${i}: NinjaTools.swf"
+        
+        echo "css: css/"
         echo
       #fi
       
@@ -1129,6 +1131,13 @@
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  operator         NinjaOperator.swf            admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  slot             TinTintSlot.swf              www/public/static/event/slot  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
         #i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  tools            NinjaTools.swf               www/public/editor      $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
+      fi
+      
+      ### ------------------------------
+      
+      if [ "${specified}" == "css" ]; then
+        ssh -p 51070 -o ConnectTimeout=1 -q "blackjk@dev.tintint.com" "date"
+        scp -r -P 1222 "Ninja/bin-release/css/" "blackjk@dev.tintint.com:svn/ninja/main/www/public/editor/"
       fi
       
       echo
