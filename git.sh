@@ -790,6 +790,24 @@
     fi
   }
   
+  ### ----------------------------------------------------------------------------------------------------
+  
+  function _flex_update {
+    file="configure/flex-config.xml"
+    if [ ! -e "${file}" ]; then
+      quit "Missing file: '${file}'!" "${QUIT_ERROR}"
+    fi
+    
+    svn_revision=$(git log -1 git-svn  | grep 'git-svn-id' | sed 's/^.*@//g; s/ .*$//g')
+    if [ "${svn_revision}" == "" ]; then
+      quit "Missing svn revision: '${svn_revision}'!" "${QUIT_ERROR}"
+    fi
+    
+    sed -r -i "/CONFIG::SvnVersion/ { s/'[[:digit:]]{4,5}'/'${svn_revision}'/g; }" "${file}"
+    unix2dos.exe "${file}"
+    echo "[SUCCESS] Update revision to ${svn_revision}"
+  }
+  
   
   
   ### ----------------------------------------------------------------------------------------------------
@@ -947,6 +965,9 @@
     echo '      <specified>     Upload specified swf'
     echo '      '
     echo '      -all            Upload all flash files without ask'
+    echo '    '
+    echo '    flex-update:      Update svn reversion'
+    echo '      '
     echo
   }
   
@@ -1141,6 +1162,12 @@
       fi
       
       echo
+    ;;
+    
+    ### --------------------------------------------------
+    
+    "flex-update")
+      _flex_update
     ;;
     
     ### --------------------------------------------------
