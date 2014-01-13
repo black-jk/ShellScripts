@@ -1021,8 +1021,10 @@
     echo '      -all            Upload all flash files without ask'
     echo '    '
     echo '    flex-update:      Update svn reversion'
+    echo '    fl-up:            Update svn reversion (alias)'
     echo '      '
     echo '    flex-release:     Udate for release'
+    echo '    fl-rls:           Udate for release (alias)'
     echo '      '
     echo
   }
@@ -1222,13 +1224,13 @@
     
     ### --------------------------------------------------
     
-    "flex-update")
+    "fl-up" | "flex-update")
       _flex_update
     ;;
     
     ### --------------------------------------------------
     
-    "flex-release")
+    "fl-rls" | "flex-release")
       _flex_release
     ;;
     
