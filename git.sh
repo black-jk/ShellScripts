@@ -487,16 +487,18 @@
           
           log "===================================================================================================="
           
-          if [ "${ALL_BRANCHES}" ]; then
+          while [ "${ALL_BRANCHES}" ]
+          do
             if [ "`git_has_changes`" == "0" ]; then
               echo -e "\e[1;32m[Done] All OK!\e[0m\n\n\n"
+              break_while=""
+              break
             else
               echo -e "\e[1;32m[${target}] <- [${branch}]\e[0m"
               echo -e "\e[1;31mDrop to bash. Finish rebase and exit bash to continue.\e[0m\n"
               bash --login -i
             fi
-            break_while=""
-          fi
+          done
           
           break
         elif [ "${action}" == "n" -o "${action}" == "N" ]; then
