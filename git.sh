@@ -563,6 +563,29 @@
   
   
   ### ----------------------------------------------------------------------------------------------------
+  ### [Prune]
+  ### ----------------------------------------------------------------------------------------------------
+  
+  function _git_prune {
+    for branch in $(git for-each-ref --format='%(refname)' refs/heads/ | sed 's/refs\/heads\///g;' | ${grep} -Ev '^(master|develop|develop-flex|release)$')
+    do
+      branch_modified="$(git diff develop --quiet "${branch}" && echo "" || echo 1)"
+      
+      title="${branch}                                                                "
+      title="${title:0:64}"
+      
+      if [ "${branch_modified}" ]; then
+        echo -ne "\e[1;31m${title} [MODIFIED]\e[0m"
+      else
+        echo -ne "\e[1;32m${title} [CLEAR]\e[0m"
+      fi
+      echo
+    done
+  }
+  
+  
+  
+  ### ----------------------------------------------------------------------------------------------------
   ### [Document]
   ### ----------------------------------------------------------------------------------------------------
   
@@ -613,6 +636,10 @@
     echo '      -f | -force     Use `git push -f` for archive'
     echo '      '
     echo '      -r | -remove    Remove <local-branch> after archived'
+    echo '      '
+    echo '    git-prune | git-pru:'
+    echo '      '
+    echo '                      List for empty branches'
     echo '      '
     echo
   }
@@ -736,6 +763,12 @@
       from_branch="${params[0]}"
       to_branch="${params[1]:-$from_branch}"
       _git_archive "${from_branch}" "${to_branch}" "${force:-$f}" "${remove:-$r}"
+    ;;
+    
+    ### --------------------------------------------------
+    
+    "git-pru" | "git-prune")
+      _git_prune
     ;;
     
     ### --------------------------------------------------
