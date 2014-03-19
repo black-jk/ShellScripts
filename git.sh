@@ -289,7 +289,8 @@
         cp "${prev_branches_tmp}" "${branches_tmp}"
       else
         echo -e "# Format: branche[:master]\n" > "${branches_tmp}"
-        git checkout master && git branch --no-color | ${grep} -v '\*' | ${grep} -Ev '^[ \t]*(develop|develop-flex|release|.*\.(debug|demo))[ \t]*$' | awk '{print $1}' >> "${branches_tmp}"
+        #git checkout master && git branch --no-color | ${grep} -v '\*' | ${grep} -Ev '^[ \t]*(develop|develop-flex|release|.*\.(debug|demo))[ \t]*$' | awk '{print $1}' >> "${branches_tmp}"
+        git for-each-ref --format='%(refname)' refs/heads/ | sed 's/refs\/heads\///g;' | ${grep} -Ev '^(master|develop|develop-flex|release|.*\.(debug|demo))$' >> "${branches_tmp}"
         [ "${keep_branch}" ] && echo -e "\n# --------------------------------------------------\n\n${current_branch}"  >> "${branches_tmp}"
       fi
       
@@ -302,7 +303,7 @@
         cp "${branches_tmp}"           "${prev_branches_tmp}"
       fi
       
-      ${grep} -vE '^(#.*|[ \t]*)$' "${branches_tmp}" | sed 's/ //g' > "${branches_tmp}.tmp"
+      ${grep} -vE '^(#.*|[ \t]*)$' "${branches_tmp}" > "${branches_tmp}.tmp"
       rm "${branches_tmp}"
       
       if [ "`check_branch "develop-flex" && echo 1`" ]; then
