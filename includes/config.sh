@@ -211,6 +211,19 @@
     echo "--------------------------------------------------"
   }
   
+  function git_remote_st {
+    echo "[git remote status]"
+    echo "--------------------------------------------------"
+    git fetch origin --prune
+    git show-branch master origin/master
+    
+    if [ "$(git lo master -1 --pretty=%H)" != "$(git lo origin/master -1 --pretty=%H)" ]; then
+      echo -e "\n\e[1;31m  Has new revisions!\e[0m"
+    fi
+    
+    echo "--------------------------------------------------"
+  }
+  
   function git_sb {
     echo "[git show-branch] ${@}"
     echo "--------------------------------------------------"

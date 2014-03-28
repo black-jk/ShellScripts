@@ -19,6 +19,9 @@
     if [ "${use_svn}" ]; then
       [ "${use_git_svn}" ] && git_svn_st || svn_st -u
       echo
+    else
+      git_remote_st
+      echo
     fi
     git_st
     echo
