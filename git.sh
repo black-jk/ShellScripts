@@ -287,13 +287,34 @@
     if [ "${ALL_BRANCHES}" ]; then
       ### make branches list
       branches_tmp="${tmp_root}/branches.tmp"
+      remote_branches_tmp="${tmp_root}/remote_branches.tmp"
       prev_branches_tmp="${tmp_root}/branches.tmp.prev"
       if [ "${prev:-""}" ] && [ -e "${prev_branches_tmp}" ]; then
         cp "${prev_branches_tmp}" "${branches_tmp}"
       else
         echo -e "# Format: branche[:master]\n" > "${branches_tmp}"
         #git checkout master && git branch --no-color | ${grep} -v '\*' | ${grep} -Ev '^[ \t]*(develop|develop-flex|release|.*\.(debug|demo))[ \t]*$' | awk '{print $1}' >> "${branches_tmp}"
-        git for-each-ref --format='%(refname)' refs/heads/ | sed 's/refs\/heads\///g;' | ${grep} -Ev '^(master|develop|develop-flex|release|.*\.(debug|demo))$' >> "${branches_tmp}"
+        
+        if [ "${use_svn}" ]; then
+          git for-each-ref --format='%(refname)' refs/heads/ | \
+          sed 's/refs\/heads\///g;' | \
+          ${grep} -Ev '^(master|develop|develop-flex|release|.*\.(debug|demo))$' \
+          >> "${branches_tmp}"
+        else
+          git ls-remote origin "refs/heads/*" | \
+          awk '{print $2}' | \
+          sed 's/refs\/heads\///g' > "${remote_branches_tmp}"
+          
+          git for-each-ref --format='%(refname)' refs/heads/ | \
+          sed 's/refs\/heads\///g;' | \
+          ${grep} -Ev '^(master|develop|develop-flex|release|.*\.(debug|demo))$' | \
+          while read branch
+          do
+            grep -qE "^${branch}$" "${remote_branches_tmp}" && echo "${branch}            [SKIP]" && continue
+            echo "${branch}" | tee -a "${branches_tmp}"
+          done
+        fi
+        
         [ "${keep_branch}" ] && echo -e "\n# --------------------------------------------------\n\n${current_branch}"  >> "${branches_tmp}"
       fi
       
