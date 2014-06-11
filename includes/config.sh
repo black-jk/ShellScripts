@@ -297,13 +297,22 @@
   ### ----------------------------------------------------------------------------------------------------
   
   function check_branch {
-    branch="${1}"
+    local branch="${1}"
+    local when_missing="${2:-""}"
+    local remote="${3:-""}"
+    
     branch="${branch//^*}"
     branch="${branch//\~*}"
-    when_missing="${2:-""}"
     [ "${branch}" == "" ] && quit "Missing branch name!" "${QUIT_ERROR}"
     
-    git branch --no-color | ${grep} -q "^[\* ] ${branch}"'$' && exist="1" || exist="0"
+    local branch_params="--no-color"
+    if [ "${remote}" == "1" ]; then
+      branch_params="${branch_params} -r"
+    elif [ "${remote}" == "2" ]; then
+      branch_params="${branch_params} -a"
+    fi
+    
+    git branch ${branch_params} | ${grep} -qE "^[\* ] (remotes/)?${branch}"'$' && exist="1" || exist="0"
     
     if [ "${exist}" == "1" ]; then
       return 0

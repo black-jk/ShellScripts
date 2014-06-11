@@ -278,6 +278,72 @@
   
   ### ----------------------------------------------------------------------------------------------------
   
+  function _git_sequence_rebase {
+    [ "`git_has_changes`" != "0" ] && echo -e "\n\e[1;31m`git_st`\n\nCommit git before rebase!\n\e[0m" && exit 1
+    
+    log_name="git_sequence_rebase.log"
+    
+    branches=()
+    local first="1"
+    local msg=""
+    for branch in ${params[@]}
+    do
+      if [ "${first}" ]; then
+        check_branch "${branch}" "quit" "2"
+        msg="${branch}"
+        first=""
+      else
+        check_branch "${branch}" "quit"
+        msg="${msg} <- ${branch}"
+      fi
+      branches=(${branches[@]} ${branch})
+    done
+    
+    if [ "${#branches[@]}" -lt "2" ]; then
+      quit "Branches less than 2!" "${QUIT_ERROR}"
+    fi
+    
+    local act=""
+    while [ "${act-""}" == "" ]; do
+      echo
+      git show-branch ${branches[@]}
+      echo
+      printf "\e[0;32m[Rebase] ${msg}\e[0m (${#branches[@]} branches) "
+      
+      read -n 1 -p "(Y/n) ?" act
+      echo
+      
+      if [ "${act:-"y"}" == "y" -o "${act}" == "Y" ]; then
+        break
+      elif [ "${act}" == "n" -o "${act}" == "N" ]; then
+        echo "Canceled!"
+        exit 0
+      else
+        act=""
+      fi
+    done
+    
+    for ((i=0; i<${#branches[@]}-1; i++))
+    do
+      [ "`git_has_changes`" != "0" ] && echo -e "\n\e[1;31m`git_st`\n\nSomething wrong!\n\e[0m" && exit 1
+      index=$(($i+1))
+      local branch="${branches[$i+1]}"
+      local target="${branches[$i]}"
+      cmd="git rebase \"${target}\" \"${branch}\""
+      log "${cmd}"
+      
+      printf "\n\n[${index}] \e[0;32m${target}\e[0m <- \e[0;32m${branch}\e[0m\n"
+      git rebase "${target}" "${branch}"
+    done
+    
+    echo
+    git show-branch ${branches[@]}
+    echo
+    printf "\e[0;32m[Rebase] ${msg}\e[0m (${#branches[@]} branches) [\e[0;32mOK\e[0m]\n\n"
+  }
+    
+  ### ----------------------------------------------------------------------------------------------------
+  
   function _git_rebase {
     [ "`git_has_changes`" != "0" ] && echo -e "\n\e[1;31m`git_st`\n\nCommit git before rebase!\n\e[0m" && exit 1
     
@@ -620,6 +686,7 @@
     echo '  .git/scripts/git.sh sync [SVN|GIT OPTIONS]'
     echo '  .git/scripts/git.sh svn-update <mode> [--svn_branch $branch] [--revision $revision]'
     echo '  .git/scripts/git.sh git-rebase -all [-i] | <branch> <target>'
+    echo '  .git/scripts/git.sh git-sequence-rebase <branch1> <branch2> <branch3> ...'
     echo '  .git/scripts/git.sh git-archive <local-branch> [<remote-branch>] [-force] [-remove]'
     echo '  '
     echo '  [SVN OPTIONS]'
@@ -650,6 +717,11 @@
     echo '      -prev           User previous branches list'
     echo '      '
     echo '      --onto $object  Use rebase --onto'
+    echo '      '
+    echo '      '
+    echo '    git-sequence-rebase | git-srb | srb:'
+    echo '      '
+    echo '      <branch#>       Branches to rebase'
     echo '      '
     echo '    git-archive | git-ar:'
     echo '      '
@@ -777,6 +849,12 @@
     
     "git-rb" | "git-rebase")
       _git_rebase
+    ;;
+    
+    ### --------------------------------------------------
+    
+    "srb" | "git-srb" | "git-sequence-rebase")
+      _git_sequence_rebase
     ;;
     
     ### --------------------------------------------------
