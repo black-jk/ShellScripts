@@ -207,7 +207,7 @@
   function git_st {
     echo "[git status]"
     echo "--------------------------------------------------"
-    git status | ${grep} -Ev  '^(nothing to commit.*|# ?([ \t]*|On branch.*|Your branch .* have diverged,|and have [0-9]+ and [0-9]+ different commit(s|\(s\))? each, respectively\.))$'
+    git status | ${grep} -Ev  '^(nothing to commit.*|# ?([ \t]*|On branch.*|Your branch .* (have diverged|is ahead|is behind).*))$'
     echo "--------------------------------------------------"
   }
   
@@ -291,7 +291,7 @@
   }
   
   function git_has_changes {
-    git status | ${grep} -qEv  '^(nothing to commit.*|# ?([ \t]*|On branch.*|Your branch .* have diverged,|and have [0-9]+ and [0-9]+ different commit(s|\(s\))? each, respectively\.|Your branch is ahead of .* by [0-9]+ commit(s|\(s\))?\.))$' && echo 1 || echo 0
+    git status | ${grep} -qEv  '^(nothing to commit.*|(# *)?([ \t]*|On branch.*|Your branch .* (is up-to-date|have diverged|is ahead|is behind)).*)$' && echo 1 || echo 0
   }
   
   ### ----------------------------------------------------------------------------------------------------
