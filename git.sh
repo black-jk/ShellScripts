@@ -278,6 +278,84 @@
   
   ### ----------------------------------------------------------------------------------------------------
   
+  function _git_update {
+    [ "${use_svn}" ] && quit "Not support for svn!" "${QUIT_ERROR}"
+    [ "`git_has_changes`" != "0" ] && echo -e "\n\e[1;31m`git_st`\n\nCommit git before rebase!\n\e[0m" && exit 1
+    
+    log_name="git_update.log"
+    
+    local branch="${params[0]}"
+    if [ "${branch}" == "" ]; then
+      branch="$(git_current_branch)"
+    fi
+    branch="${branch//.develop}"
+    check_branch "${branch}" "quit"
+    
+    local cmd_head="${0} git-sequence-rebase"
+    local cmd_branches="${branch}"
+    
+    printf "\n[Update]\n  [branch] \e[0;32m${branch}\e[0m\n"
+    printf "  [git fetch --prune]\n"
+    git fetch --prune
+    printf "\n"
+    
+    ### ------------------------------
+    
+    ### upstream branches
+    is_shared="$(check_branch "shared/${branch}" || check_branch "origin/shared/${branch}" "" "1" && echo 1)"
+    
+    upstream_branches=("${branch}")
+    if [ "${is_shared}" ]; then
+      upstream_branches=("${branch}.develop" "shared/${branch}" "origin/shared/${branch}")
+    else
+      upstream_branches=("${branch}.develop" "develop" "develop-flex" "master" "origin/master")
+    fi
+    
+    for upstream_branch in ${upstream_branches[@]}
+    do
+      printf "  [checking] %-64s " "${upstream_branch}"
+      check_param="$(printf "${upstream_branch}" | grep -q '^origin/' && echo 1)"
+      if [ "`check_branch "${upstream_branch}" "" "${check_param}" && echo 1`" ]; then
+        cmd_branches="${upstream_branch} ${cmd_branches}"
+        printf "ok"
+      else
+        printf "missing"
+      fi
+      printf "\n"
+    done
+    
+    printf "\n"
+    
+    ### ------------------------------
+    
+    cmd="${cmd_head} ${cmd_branches}"
+    
+    local act="Y"
+    while [ "${act-""}" == "" ]; do
+      echo
+      
+      echo ""
+      printf "\e[0;32m[cmd] ${cmd}\e[0m "
+      
+      read -n 1 -p "(Y/n) ?" act
+      echo
+      
+      if [ "${act:-"y"}" == "y" -o "${act}" == "Y" ]; then
+        break
+      elif [ "${act}" == "n" -o "${act}" == "N" ]; then
+        echo "Canceled!"
+        exit 0
+      else
+        act=""
+      fi
+    done
+    
+    printf "  [execute] ${cmd}\n----------------------------------------------------------------------------------------------------\n"
+    ${cmd}
+  }
+  
+  ### ----------------------------------------------------------------------------------------------------
+  
   function _git_sequence_rebase {
     [ "`git_has_changes`" != "0" ] && echo -e "\n\e[1;31m`git_st`\n\nCommit git before rebase!\n\e[0m" && exit 1
     
@@ -691,6 +769,7 @@
     echo '  .git/scripts/git.sh sync [SVN|GIT OPTIONS]'
     echo '  .git/scripts/git.sh svn-update <mode> [--svn_branch $branch] [--revision $revision]'
     echo '  .git/scripts/git.sh git-rebase -all [-i] | <branch> <target>'
+    echo '  .git/scripts/git.sh git-update <branch>'
     echo '  .git/scripts/git.sh git-sequence-rebase <branch1> <branch2> <branch3> ...'
     echo '  .git/scripts/git.sh git-archive <local-branch> [<remote-branch>] [-force] [-remove]'
     echo '  '
@@ -723,6 +802,9 @@
     echo '      '
     echo '      --onto $object  Use rebase --onto'
     echo '      '
+    echo '    git-update | git-up | up:'
+    echo '      '
+    echo '      <branch>        Branch to update (default = current branch)'
     echo '      '
     echo '    git-sequence-rebase | git-srb | srb:'
     echo '      '
@@ -854,6 +936,12 @@
     
     "git-rb" | "git-rebase")
       _git_rebase
+    ;;
+    
+    ### --------------------------------------------------
+    
+    "up" | "git-up" | "git-update")
+      _git_update
     ;;
     
     ### --------------------------------------------------
