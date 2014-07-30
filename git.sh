@@ -325,7 +325,6 @@
     
     for ((i=0; i<${#branches[@]}-1; i++))
     do
-      [ "`git_has_changes`" != "0" ] && echo -e "\n\e[1;31m`git_st`\n\nSomething wrong!\n\e[0m" && exit 1
       index=$(($i+1))
       local branch="${branches[$i+1]}"
       local target="${branches[$i]}"
@@ -334,6 +333,12 @@
       
       printf "\n\n[${index}] \e[0;32m${target}\e[0m <- \e[0;32m${branch}\e[0m\n"
       git rebase "${target}" "${branch}"
+      
+      while [ "`git_has_changes`" != "0" ]
+      do
+        echo -e "\e[1;31mSomething wrong. Finish rebase and exit bash to continue.\e[0m\n"
+        bash --login -i
+      done
     done
     
     echo
