@@ -291,7 +291,15 @@
   }
   
   function git_has_changes {
-    git status | ${grep} -qEv  '^(nothing to commit.*|(# *)?([ \t]*|On branch.*|Your branch .* (is up-to-date|have diverged|is ahead|is behind)).*)$' && echo 1 || echo 0
+    git diff --quiet HEAD && echo 0 || echo 1
+    
+    #grep_params="-Ev"
+    #git status \
+    #  | ${grep} ${grep_params} '^nothing to commit.*$' \
+    #  | ${grep} ${grep_params} '^#?[ \t]*$' \
+    #  | ${grep} ${grep_params} '^(# *)?(On branch.*|Your branch .*(is up-to-date|have diverged|is ahead|is behind).*)$' \
+    #  | ${grep} -qv '^$' \
+    #  && echo 1 || echo 0
   }
   
   ### ----------------------------------------------------------------------------------------------------
