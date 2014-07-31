@@ -279,7 +279,6 @@
   ### ----------------------------------------------------------------------------------------------------
   
   function _git_update {
-    [ "${use_svn}" ] && quit "Not support for svn!" "${QUIT_ERROR}"
     [ "`git_has_changes`" != "0" ] && echo -e "\n\e[1;31m`git_st`\n\nCommit git before rebase!\n\e[0m" && exit 1
     
     log_name="git_update.log"
@@ -294,9 +293,18 @@
     local cmd_head="${0} git-sequence-rebase"
     local cmd_branches="${branch}"
     
-    printf "\n[Update]\n  [branch] \e[0;32m${branch}\e[0m\n"
-    printf "  [git fetch --prune]\n"
-    git fetch --prune
+    printf "\n[Update]\n  [branch] \e[0;32m${branch}\e[0m\n\n"
+    
+    if [ "${use_svn}" ]; then
+      if [ "${use_git_svn}" ]; then
+        printf "  [git svn fetch]"
+        git svn fetch
+        printf "\n"
+      fi
+    else
+      printf "  [git fetch --prune]\n"
+      git fetch --prune
+    fi
     printf "\n"
     
     ### ------------------------------
@@ -308,7 +316,15 @@
     if [ "${is_shared}" ]; then
       upstream_branches=("${branch}.develop" "shared/${branch}" "origin/shared/${branch}")
     else
-      upstream_branches=("${branch}.develop" "develop" "develop-flex" "master" "origin/master")
+      if [ "${use_svn}" ]; then
+        if [ "${use_git_svn}" ]; then
+          upstream_branches=("${branch}.develop" "develop" "develop-flex" "master" "git-svn")
+        else
+          upstream_branches=("${branch}.develop" "develop" "develop-flex" "master")
+        fi
+      else
+        upstream_branches=("${branch}.develop" "develop" "develop-flex" "master" "origin/master")
+      fi
     fi
     
     for upstream_branch in ${upstream_branches[@]}
@@ -316,6 +332,9 @@
       printf "  [checking] %-64s " "${upstream_branch}"
       check_param="$(printf "${upstream_branch}" | grep -q '^origin/' && echo 1)"
       if [ "`check_branch "${upstream_branch}" "" "${check_param}" && echo 1`" ]; then
+        cmd_branches="${upstream_branch} ${cmd_branches}"
+        printf "ok"
+      elif [ "${upstream_branch}" == "git-svn" ] && [ "${use_svn}" ] && [ "${use_git_svn}" ] && [ "`check_branch "git-svn" "" "2" && echo 1`" ]; then
         cmd_branches="${upstream_branch} ${cmd_branches}"
         printf "ok"
       else
