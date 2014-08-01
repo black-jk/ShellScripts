@@ -310,20 +310,45 @@
     ### ------------------------------
     
     ### upstream branches
+    
+    master_branch="master"
+    develop_flex_branch="develop-flex"
+    develop_branch="develop"
+    dot_develop_branch="${branch}.develop"
+    
+    cut=""
+    
+    if [ "${cut}" ] || [ "${branch}" == "master" ]; then
+      master_branch=""
+      cut="1"
+    fi
+    
+    if [ "${cut}" ] || [ "${branch}" == "develop-flex" ]; then
+      develop_flex_branch=""
+      cut="1"
+    fi
+    
+    if [ "${cut}" ] || [ "${branch}" == "develop" ]; then
+      develop_branch=""
+      dot_develop_branch=""
+      cut="1"
+    fi
+    
+    ### ------------------------------
+    
     is_shared="$(check_branch "shared/${branch}" || check_branch "origin/shared/${branch}" "" "1" && echo 1)"
     
-    upstream_branches=("${branch}")
     if [ "${is_shared}" ]; then
-      upstream_branches=("${branch}.develop" "shared/${branch}" "origin/shared/${branch}")
+      upstream_branches=("${dot_develop_branch}" "shared/${branch}" "origin/shared/${branch}")
     else
       if [ "${use_svn}" ]; then
         if [ "${use_git_svn}" ]; then
-          upstream_branches=("${branch}.develop" "develop" "develop-flex" "master" "git-svn")
+          upstream_branches=("${dot_develop_branch}" "${develop_branch}" "${develop_flex_branch}" "${master_branch}" "git-svn")
         else
-          upstream_branches=("${branch}.develop" "develop" "develop-flex" "master")
+          upstream_branches=("${dot_develop_branch}" "${develop_branch}" "${develop_flex_branch}" "${master_branch}")
         fi
       else
-        upstream_branches=("${branch}.develop" "develop" "develop-flex" "master" "origin/master")
+        upstream_branches=("${dot_develop_branch}" "${develop_branch}" "${develop_flex_branch}" "${master_branch}" "origin/master")
       fi
     fi
     
