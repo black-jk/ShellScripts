@@ -798,32 +798,67 @@
       quit "Missing file: '${file}'!" "${QUIT_ERROR}"
     fi
     
-    svn_revision=$(git log -1 git-svn  | grep 'git-svn-id' | sed 's/^.*@//g; s/ .*$//g')
-    if [ "${svn_revision}" == "" ]; then
-      quit "Missing svn revision: '${svn_revision}'!" "${QUIT_ERROR}"
+    if [ "${use_svn}" ]; then
+      svn_revision=$(git log -1 git-svn  | grep 'git-svn-id' | sed 's/^.*@//g; s/ .*$//g')
+      if [ "${svn_revision}" == "" ]; then
+        quit "Missing svn revision: '${svn_revision}'!" "${QUIT_ERROR}"
+      fi
+      
+      sed -r -i "/CONFIG::SvnVersion/ { s/'[[:digit:]]{4,5}'/'${svn_revision}'/g; }" "${file}"
+      unix2dos.exe "${file}"
+      echo "[SUCCESS] Update revision to ${svn_revision}"
+    else
+      #git_commit_id=$(git show --no-color -s --pretty='%H' master)
+      
+      git_commit_id=$(git grep 'CONFIG::SvnVersion' "master" "${file}" | sed "s/^.* <value> '//g; s/'.*$//g")
+      git_commit_id=$((${git_commit_id} + 1))
+      
+      sed -r -i "/CONFIG::SvnVersion/ { s/'[0-9a-f]+'/'${git_commit_id}'/g; }" "${file}"
+      
+      unix2dos.exe "${file}"
+      echo "[SUCCESS] Update revision to ${git_commit_id}"
     fi
-    
-    sed -r -i "/CONFIG::SvnVersion/ { s/'[[:digit:]]{4,5}'/'${svn_revision}'/g; }" "${file}"
-    unix2dos.exe "${file}"
-    echo "[SUCCESS] Update revision to ${svn_revision}"
   }
   
   ### ----------------------------------------------------------------------------------------------------
   
   function _flex_release {
-    git rebase git-svn master                                                                         && \
-    git rebase master develop-flex                                                                    && \
-    git rebase develop-flex develop                                                                   && \
-    git rebase develop-flex release                                                                   && \
-    _flex_update                                                                                      && \
-    git commit --amend -C HEAD configure/flex-config.xml > NUL
+    if [ "${use_svn}" ]; then
+      git rebase git-svn master                                                                         && \
+      git rebase master develop-flex                                                                    && \
+      git rebase develop-flex develop                                                                   && \
+      git rebase develop-flex release                                                                   && \
+      _flex_update                                                                                      && \
+      git commit --amend -C HEAD configure/flex-config.xml > NUL                                        && \
+      :
+    else
+      git rebase master develop-flex                                                                    && \
+      git rebase develop-flex release                                                                   && \
+      :
+    fi
     
     echo "--------------------------------------------------"
+    
     git status
+    
     echo "--------------------------------------------------"
-    git show-branch git-svn master develop-flex release
+    
+    if [ "${use_svn}" ]; then
+      git show-branch git-svn master develop-flex release
+    else
+      git show-branch master develop-flex release
+    fi
+    
     echo "--------------------------------------------------"
-    git show "configure/flex-config.xml"
+    
+    if [ "${use_svn}" ]; then
+      git show "configure/flex-config.xml"
+    else
+      echo
+      git grep "CONFIG::SvnVersion.*'" "master" "configure/flex-config.xml"
+      echo
+    fi
+    
     echo "--------------------------------------------------"
   }
   
