@@ -283,11 +283,12 @@
     
     log_name="git_update.log"
     
-    local branch="${params[0]}"
+    local branch="${1}"
     if [ "${branch}" == "" ]; then
       branch="$(git_current_branch)"
     fi
     branch="${branch//.develop}"
+    branch="${branch##shared/}"
     check_branch "${branch}" "quit"
     
     local cmd_head="${0} git-sequence-rebase"
@@ -985,7 +986,7 @@
     ### --------------------------------------------------
     
     "up" | "git-up" | "git-update")
-      _git_update
+      _git_update ${params[0]}
     ;;
     
     ### --------------------------------------------------
