@@ -460,6 +460,8 @@
       while [ "`git_has_changes`" != "0" ]
       do
         echo -e "\e[1;31mSomething wrong. Finish rebase and exit bash to continue.\e[0m\n"
+        git_st
+        echog
         bash --login -i
       done
     done
@@ -1184,11 +1186,11 @@
         i=$((i + 1)); echo " ${i}: Ninja.swf"
         i=$((i + 1)); echo " ${i}: NinjaPlayer.swf"
         i=$((i + 1)); echo " ${i}: NinjaComposer.swf"
-        i=$((i + 1)); echo " ${i}: NinjaPlayerComposer.swf"
+        i=$((i + 1)); echo " ${i}: NinjaSnapShotComposer.swf"
         i=$((i + 1)); echo " ${i}: NinjaScreenShotComposer.swf"
         i=$((i + 1)); echo " ${i}: ComposeManager.swf"
         i=$((i + 1)); echo " ${i}: ComposeManagerV2.swf"
-        i=$((i + 1)); echo " ${i}: NinjaApi_thumbnail.swf"
+        i=$((i + 1)); echo " ${i}: NinjaThumbnailComposer.swf"
         i=$((i + 1)); echo " ${i}: NinjaOperator.swf"
         i=$((i + 1)); echo " ${i}: TinTintSlot.swf"
         #i=$((i + 1)); echo " ${i}: NinjaTools.swf"
@@ -1202,11 +1204,11 @@
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  editor           Ninja.swf                    www/public/editor      $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  player           NinjaPlayer.swf              www/public/player      $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  composer         NinjaComposer.swf            admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
-        i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  snapshot         NinjaPlayerComposer.swf      admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
+        i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  snapshot         NinjaSnapShotComposer.swf    admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  screenshot       NinjaScreenShotComposer.swf  admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  manager          ComposeManager.swf           admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  manager2         ComposeManagerV2.swf         admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
-        i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  thumbnail        NinjaApi_thumbnail.swf       admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
+        i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  thumbnail        NinjaThumbnailComposer.swf   admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  operator         NinjaOperator.swf            admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  slot             TinTintSlot.swf              www/public/static/event/slot  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
         #i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  tools            NinjaTools.swf               www/public/editor      $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
