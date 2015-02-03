@@ -495,9 +495,16 @@
           ${grep} -Ev '^(master|develop|develop-flex|release|.*\.(debug|demo))$' \
           >> "${branches_tmp}"
         else
+          # skip remote/${branch}
           git ls-remote origin "refs/heads/*" | \
           awk '{print $2}' | \
           sed 's/refs\/heads\///g' > "${remote_branches_tmp}"
+          
+          # skip shared/${branch}
+          git branch \
+          | grep 'shared/' \
+          | sed 's/^ *shared\///g;' \
+          >> "${remote_branches_tmp}"
           
           git for-each-ref --format='%(refname)' refs/heads/ | \
           sed 's/refs\/heads\///g;' | \
