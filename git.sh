@@ -501,11 +501,16 @@
           
           git for-each-ref --format='%(refname)' refs/heads/ | \
           sed 's/refs\/heads\///g;' | \
-          ${grep} -Ev '^(master|develop|develop-flex|release|.*\.(debug|demo))$' | \
+          ${grep} -Ev '^(master|develop|develop-flex|release|.*\.(debug|develop|demo))$' | \
           while read branch
           do
             grep -qE "^${branch}$" "${remote_branches_tmp}" && echo "${branch}            [SKIP]" && continue
-            echo "${branch}" | tee -a "${branches_tmp}"
+            if [ "`check_branch "${branch}.develop" && echo 1`" ]; then
+              echo "${branch}.develop" | tee -a "${branches_tmp}"
+              echo "${branch}:${branch}.develop" | tee -a "${branches_tmp}"
+            else
+              echo "${branch}" | tee -a "${branches_tmp}"
+            fi
           done
         fi
         
