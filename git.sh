@@ -877,7 +877,7 @@
     echo '      '
     echo '      -r | -remove    Remove <local-branch> after archived'
     echo '      '
-    echo '    git-prune | git-pru:'
+    echo '    git-prune | git-pru | pru:'
     echo '      '
     echo '                      List for empty branches'
     echo '      '
@@ -1019,7 +1019,7 @@
     
     ### --------------------------------------------------
     
-    "git-pru" | "git-prune")
+    "pru" | "git-pru" | "git-prune")
       _git_prune
     ;;
     
