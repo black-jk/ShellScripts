@@ -797,9 +797,11 @@
   ### ----------------------------------------------------------------------------------------------------
   
   function _git_prune {
+    target_branch="${1:-develop}"
+    
     for branch in $(git for-each-ref --format='%(refname)' refs/heads/ | sed 's/refs\/heads\///g;' | ${grep} -Ev '^(master|develop|develop-flex|release)$')
     do
-      branch_modified="$(git diff develop --quiet "${branch}" && echo "" || echo 1)"
+      branch_modified="$(git diff "${target_branch}" --quiet "${branch}" && echo "" || echo 1)"
       
       title="${branch}                                                                "
       title="${title:0:64}"
@@ -1020,7 +1022,7 @@
     ### --------------------------------------------------
     
     "pru" | "git-pru" | "git-prune")
-      _git_prune
+      _git_prune "${params[0]}"
     ;;
     
     ### --------------------------------------------------
