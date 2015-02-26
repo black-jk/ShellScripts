@@ -845,7 +845,7 @@
     echo '      '
     echo '  [GIT OPTIONS]'
     echo '    '
-    echo '    git-rebase | git-rb:'
+    echo '    git-rebase | git-rb | rb:'
     echo '      '
     echo '      -all            Rebase all branch by list. (You can edit list before rebase)'
     echo '      '
@@ -991,7 +991,7 @@
     
     ### --------------------------------------------------
     
-    "git-rb" | "git-rebase")
+    "rb" | "git-rb" | "git-rebase")
       _git_rebase
     ;;
     
