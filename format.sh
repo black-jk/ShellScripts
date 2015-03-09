@@ -7,7 +7,7 @@
   ### ====================================================================================================
   
   function _check {
-    pattern='^\+\+\+|\( | \)|if\(|\){|(for|each|while)\(|}(else|catch)|catch\(|else{'
+    pattern='^\+\+\+|\( | \)|if\(|\){|(for|each|while)\(|}(else|catch)|catch\(|else{|void{'
     if [ "${#params[@]}" -ge "1" ]; then
       for arg in ${params[@]// /%space%}
       do
@@ -40,6 +40,7 @@
         s/\}(else|catch)/\} \1/g;
         s/catch\(/catch (/g;
         s/else\{/else {/g;
+        s/void\{/void {/g;
         s/\( +/\(/g;
         s/ +\)/\)/g;
         ' "${file}"
