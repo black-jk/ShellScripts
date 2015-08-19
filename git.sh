@@ -315,22 +315,33 @@
     master_branch="master"
     develop_flex_branch="develop-flex"
     develop_branch="develop"
+    if [ "${db}" == 1 ]; then
+      db_branch="db"
+    else
+      db_branch=""
+    fi
     dot_develop_branch="${branch}.develop"
     
     cut=""
     
-    if [ "${cut}" ] || [ "${branch}" == "master" ]; then
+    if [ "${cut}" ] || [ "${branch}" == "${master_branch}" ]; then
       master_branch=""
       cut="1"
     fi
     
-    if [ "${cut}" ] || [ "${branch}" == "develop-flex" ]; then
+    if [ "${cut}" ] || [ "${branch}" == "${develop_flex_branch}" ]; then
       develop_flex_branch=""
       cut="1"
     fi
     
-    if [ "${cut}" ] || [ "${branch}" == "develop" ]; then
+    if [ "${cut}" ] || [ "${branch}" == "${develop_branch}" ]; then
       develop_branch=""
+      dot_develop_branch=""
+      cut="1"
+    fi
+    
+    if [ "${cut}" ] || [ "${branch}" == "${db_branch}" ]; then
+      db_branch=""
       dot_develop_branch=""
       cut="1"
     fi
@@ -349,7 +360,7 @@
           upstream_branches=("${dot_develop_branch}" "${develop_branch}" "${develop_flex_branch}" "${master_branch}")
         fi
       else
-        upstream_branches=("${dot_develop_branch}" "${develop_branch}" "${develop_flex_branch}" "${master_branch}" "origin/master")
+        upstream_branches=("${dot_develop_branch}" "${db_branch}" "${develop_branch}" "${develop_flex_branch}" "${master_branch}" "origin/master")
       fi
     fi
     
