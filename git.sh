@@ -1185,6 +1185,7 @@
         i=0
         i=$((i + 1)); echo " ${i}: Ninja.swf"
         i=$((i + 1)); echo " ${i}: NinjaPlayer.swf"
+        i=$((i + 1)); echo " ${i}: NinjaSlider.swf"
         i=$((i + 1)); echo " ${i}: NinjaComposer.swf"
         i=$((i + 1)); echo " ${i}: NinjaSnapShotComposer.swf"
         i=$((i + 1)); echo " ${i}: NinjaScreenShotComposer.swf"
@@ -1203,6 +1204,7 @@
         i=0
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  editor           Ninja.swf                    www/public/editor      $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  player           NinjaPlayer.swf              www/public/player      $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
+        i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  slideshow        NinjaSlider.swf              www/public/player      $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  composer         NinjaComposer.swf            admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  snapshot         NinjaSnapShotComposer.swf    admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
         i=$((i + 1)); [ ! "${specified}" ] || [ ${specified} == "${i}" ] && _push_ninja  screenshot       NinjaScreenShotComposer.swf  admin/public/composer  $([ "${all}" == "1" ] || [ "${specified}" == "${i}" ] && echo "0")
